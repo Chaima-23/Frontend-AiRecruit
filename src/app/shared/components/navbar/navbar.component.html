@@ -1,0 +1,18 @@
+<nav class="navbar">
+  <div class="navbar-left">
+    <img src="assets/icons/Logo.png" alt="AIRecruit Logo" class="logo" />
+  </div>
+
+  <ul class="navbar-links">
+    <li><button class="Home" (click)="redirectToHome()">Home</button></li>
+    <li><button class="About-Us" (click)="redirectToAbout()">About Us</button></li>
+    <li><button routerLink="/offers">Offers</button></li>
+    <li><button class="Contact" (click)="redirectToContact()">Contact Us</button></li>
+  </ul>
+
+  <div class="navbar-buttons">
+    <button class="signup" (click)="redirectToSignup()">SIGN UP</button>
+    <button class="signin" (click)="redirectToKeycloakLogin()">SIGN IN</button>
+  </div>
+
+</nav>

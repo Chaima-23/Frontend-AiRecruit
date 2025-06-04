@@ -1,0 +1,36 @@
+<app-navbar></app-navbar>
+<div class="container">
+  <div class="left-section">
+    <div class="header">
+      <h2 class="title">Get Started</h2>
+      <p class="subtitle">How Do You Want To Use AIRecruit?</p>
+      <p class="description">We'll personalize your setup experience accordingly.</p>
+    </div>
+
+    <div class="options">
+      <label class="option">
+        <input class="radio" type="radio" name="role" value="recruiter" (change)="selectRole('recruiter')" />
+        <span class="text">I'm looking for exceptional talent to join my team</span>
+      </label>
+
+      <label class="option">
+        <input class="radio" type="radio" name="role" value="candidate" (change)="selectRole('candidate')" />
+        <span class="text">I'm here, chasing my next great opportunity.</span>
+      </label>
+    </div>
+
+    <button class="create-account" (click)="continue()">Create Account</button>
+  </div>
+
+  <div class="right-section">
+    <div class="text-overlay">
+      <h2>Welcome to</h2>
+      <h1>AIRecruit Community</h1>
+      <div class="overlay-text">
+        <p class="phrase-1">Connecting top candidates with<br>the right opportunities</p>
+        <p class="phrase-2">While Providing intelligent hiring experience</p>
+      </div>
+      </div>
+    <img src="assets/images/get-started.png" alt="get-started" class="masquer-blanc" />
+  </div>
+</div>

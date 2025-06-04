@@ -1,0 +1,101 @@
+<div class="container">
+  <div class="sidebar" *ngIf="currentView !== 'settings' && currentView !== 'offers' && currentView !== 'applications'">
+    <div class="top-nav">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="assets/icons/Logo.png" alt="Logo" />
+        </div>
+      </div>
+      <ul>
+        <li [class.active]="currentView === 'dashboard'" (click)="setView('dashboard')"><i class="bi bi-house-door"></i> Dashboard</li>
+        <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers</li>
+        <li [class.active]="currentView === 'applications'" (click)="setView('applications')"><i class="bi bi-file-earmark"></i> Applications</li>
+      </ul>
+    </div>
+    <div class="bottom-nav">
+      <ul>
+        <li [class.active]="currentView === 'settings'" (click)="setView('settings')"><i class="bi bi-gear"></i> Settings</li>
+        <li (click)="logout()"><i class="bi bi-box-arrow-right"></i> Log Out</li>
+      </ul>
+    </div>
+    <div *ngIf="logoutMessage" class="logout-message">
+      {{ logoutMessage }}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" [ngClass]="{'full-width': currentView === 'settings'}">
+    <!-- Dashboard View -->
+    <div *ngIf="currentView === 'dashboard'">
+      <h1>Dashboard</h1>
+      <p class="welcome">Welcome back, Ronald</p>
+
+      <!-- Stats Cards -->
+      <div class="stats-container">
+        <div class="stat-card" id="candidates">
+          <div class="stat-content">
+            <div class="stat-left">
+              <h3>Candidates</h3>
+              <div class="stat-number">250</div>
+              <div class="legend">
+                <span class="legend-item female">Females</span>
+                <span class="legend-item male">Males</span>
+              </div>
+            </div>
+            <div class="stat-right">
+              <canvas id="candidatesPieChart" class="pie-chart"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card" id="accepted">
+          <div class="stat-content">
+            <div class="stat-left">
+              <h3>Accepted</h3>
+              <div class="stat-number">52</div>
+            </div>
+            <div class="stat-right">
+              <i class="bi bi-check-circle"></i>
+            </div>
+          </div>
+        </div>
+        <div class="stat-card" id="pending">
+          <div class="stat-content">
+            <div class="stat-left">
+              <h3>Pending</h3>
+              <div class="stat-number">7</div>
+            </div>
+            <div class="stat-right">
+              <i class="bi bi-clock"></i>
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+    <div class="stat-card" id="dailyviews">
+      <h3>Daily Profile Views</h3>
+      <div class="bar-chart">
+        <ngx-charts-bar-vertical
+          [results]="dailyViewsData"
+          class="ngx-bar-chart"
+        ></ngx-charts-bar-vertical>
+      </div>
+      <div class="bar-labels">
+        <span>M</span><span>Tu</span><span>W</span><span>Th</span><span>F</span><span>Sa</span><span>Su</span>
+      </div>
+    </div>
+    <div class="stat-card" id="topscorers">
+      <div class="top-scorer-container">
+        <h3>Top Scorers</h3>
+        <div class="top-scorer-cards">
+          <div class="top-scorer-card" *ngFor="let scorer of topScorers">
+            <div class="top-scorer-name">{{ scorer.name }}</div>
+            <div class="top-scorer-title">{{ scorer.title }}</div>
+            <div class="top-scorer-percentage">{{ scorer.percentage }}</div>
+            <div class="top-scorer-rank">{{ scorer.rank }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

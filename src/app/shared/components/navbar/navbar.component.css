@@ -1,0 +1,84 @@
+.navbar {
+    height: 60px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    z-index: 1000;
+  }
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  display: flex;
+  width: 300px;
+  height: 80px;
+  padding-right: 100px;
+  align-items: center;
+  flex-shrink: 0;
+  transform: scale(1.1);
+  transform-origin: center left;
+  transition: transform 0.3s ease;
+
+}
+
+.brand {
+  font-size: 28px;
+  color: #005696;
+  font-weight: bold;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-links button {
+
+  color: #055695;
+  text-align: center;
+  font-family: Inter;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  background-color: transparent;
+  border: none;
+}
+
+
+.navbar-links button:hover {
+  color: #4AFFFC;
+  text-decoration: underline;
+}
+
+.navbar-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+.signup,
+.signin {
+  background-color: #66fcff;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #001144;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.signup:hover,
+.signin:hover {
+  background-color: #4de5e8;
+}

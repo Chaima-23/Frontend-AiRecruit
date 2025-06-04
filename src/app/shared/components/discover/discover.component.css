@@ -1,0 +1,73 @@
+.discover-section {
+  background-image: url('/assets/images/discover.png');
+  background-size: cover;
+  background-position: center;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: white;
+  padding-left: 80px;
+}
+
+.discover-section .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centre les éléments enfants horizontalement */
+  justify-content: center;
+}
+
+.discover-section h2 {
+  color: #FDFDFD;
+  font-family: Inter;
+  font-size: 55px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: normal;
+  letter-spacing: -1.1px;
+  margin-left: 240px;
+  margin-top:30px;
+  width: 936px;
+
+}
+
+.discover-section p {
+  color: #FDFDFD;
+  font-family: "Instrument Sans";
+  font-size: 48px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.96px;
+  width: 324px;
+  margin-top:-25px;
+  margin-left: 500px;
+}
+
+
+.discover-btn {
+  color: rgba(0, 0, 110, 0.93);
+  text-align: center;
+  font-family: Inter, sans-serif;
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.3s ease;
+  width: 180px;
+  height: 40px;
+  border-radius: 8px;
+  background: #4AFFFC;
+  margin-top:-40px;
+  margin-left: 370px;
+}
+
+.discover-btn:hover {
+  background-color: #00c6e6;
+}

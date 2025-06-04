@@ -1,0 +1,245 @@
+.host{
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+.container {
+  padding: 40px;
+}
+.recruitment-section {
+  margin-bottom: 4rem;
+}
+
+.about-section {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+
+
+.about-image {
+  width: 100%;
+  max-width: 600px;
+  height: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+  transform: scale(1.01); /* zoom léger */
+  transition: transform 0.3s ease;
+}
+.masquer-blanc {
+  clip-path: polygon(0% 0%, 90% 0%, 100% 10%, 100% 100%, 0% 100%);
+}
+
+
+.content-container {
+  flex: 2;
+  margin-left: 100px;
+}
+
+.section-title {
+  color: #014D88;
+  text-align: left;
+  font-family: "Instrument Sans";
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin-top: -10px;
+}
+
+.main-title {
+  color: #014D88;
+  font-family: "Instrument Sans";
+  font-size: 30px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin-top: -20px;
+}
+
+.description {
+  color: rgba(16, 16, 16, 0.50);
+  font-family: "DM Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.48px;
+}
+
+.benefits {
+  margin-top: 30px;
+
+}
+
+.benefit-item {
+  display: flex;
+  align-items: flex-start; /* Alignement en haut */
+}
+
+.check-icon {
+  width: 24px;         /* Taille standardisée */
+  height: 24px;
+  margin-top: 3px;     /* Ajuste pour aligner avec le texte */
+  flex-shrink: 0;      /* Ne pas réduire dans les petits écrans */
+}
+
+.benefit-item h3 {
+  margin: 0;
+  padding-left: 15px;
+  color: #014D88;
+  font-family: "Istok Web";
+  font-size: 35px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.benefit-item p {
+  color: rgba(16, 16, 16, 0.50);
+  font-family: "DM Sans";
+  font-size: 23px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.46px;
+}
+
+
+.check-icon {
+  width: 30px;
+  height: 30px;
+  margin-top: 5px;
+}
+
+.vision-mission {
+  display: flex;
+  margin-top: 30px;
+  flex-wrap: wrap;
+  gap: 25px;
+}
+
+.vision-box, .mission-box {
+  flex: 1;
+  padding: 0;
+}
+
+.vision-image,
+.mission-image {
+  width: 100%; /* on passe à 100% pour remplir le conteneur */
+  max-width: 100%;
+  object-fit: cover;
+  transform: scale(1.01); /* zoom léger */
+  transition: transform 0.3s ease;
+}
+
+
+
+.recruitment-section {
+  text-align: left;
+  margin-top: -300px;
+  padding-left: 35px;
+}
+
+.recruitment-title {
+  color: #014D88;
+  font-family: "Instrument Sans";
+  font-size: 35px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  width: 1000px;
+}
+
+.recruitment-description {
+  color: rgba(16, 16, 16, 0.50);
+  font-family: "DM Sans";
+  font-size: 18px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.48px;
+  width: 774px;
+  height: 113px;
+  flex-shrink: 0;
+  margin-top: -10px;
+}
+.Testimonials {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 60px 40px;
+  flex-wrap: wrap;
+}
+
+.testimonials-left {
+  flex: 1;
+  min-width: 300px;
+  max-width: 600px;
+}
+
+.testimonials-left h4 {
+  color: #014D88;
+  font-family: "Instrument Sans";
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin-bottom: 25px;
+  margin-top: -10px;
+}
+
+.testimonials-left h2 {
+  color: #014D88;
+  font-family: "Instrument Sans";
+  font-size: 50px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  width: 792px;
+  height: 94px;
+  flex-shrink: 0;
+  margin-top: -10px;
+}
+
+.testimonials-left p {
+  color: rgba(16, 16, 16, 0.50);
+  font-family: "DM Sans";
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  letter-spacing: -0.48px;
+}
+
+.feedbacks {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 25px;
+  margin-top: 30px;
+
+}
+
+.feedback-card {
+  flex: 0 0 auto;
+  width: 350px;
+  border-radius: 10px;
+}
+
+
+
+.testimonials-right {
+  flex: 1;
+  min-width: 280px;
+  text-align: center;
+}
+
+.testimonials-right img {
+  width: 100%;
+  max-width: 600px;
+  margin-left: 90px;
+  margin-top: -50px;
+}
+

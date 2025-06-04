@@ -1,0 +1,467 @@
+<div class="container">
+  <div class="sidebar" *ngIf="currentView !== 'settings' && currentView !== 'candidates' && currentView !== 'recruiters' && currentView !== 'offers'">
+    <div class="top-nav">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="assets/icons/Logo.png" alt="Logo" />
+        </div>
+      </div>
+      <ul>
+        <li [class.active]="currentView === 'dashboard'" (click)="setView('dashboard')"><i class="bi bi-house-door"></i> Dashboard</li>
+        <li [class.active]="currentView === 'candidates'" (click)="setView('candidates')"><i class="bi bi-person"></i> Candidates</li>
+        <li [class.active]="currentView === 'recruiters'" (click)="setView('recruiters')"><i class="bi bi-briefcase"></i> Recruiters</li>
+        <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers List</li>
+      </ul>
+    </div>
+    <div class="bottom-nav">
+      <ul>
+        <li [class.active]="currentView === 'settings'" (click)="setView('settings')"><i class="bi bi-gear"></i> Settings</li>
+        <li (click)="logout()"><i class="bi bi-box-arrow-right"></i> Log Out</li>
+      </ul>
+    </div>
+    <div *ngIf="logoutMessage" class="logout-message">
+      {{ logoutMessage }}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" [ngClass]="{'full-width': currentView === 'settings'}">
+    <!-- Dashboard View -->
+    <div *ngIf="currentView === 'dashboard'">
+      <h1>Dashboard</h1>
+      <p class="welcome">Welcome back, Ronald</p>
+
+      <!-- Stats Cards -->
+      <div class="stats">
+        <div class="card" *ngFor="let stat of stats">
+          <h1>{{ stat.title }}</h1>
+          <p>{{ stat.value }}</p>
+        </div>
+      </div>
+
+      <!-- Charts and Job Posts Row -->
+      <div class="charts-and-posts">
+        <!-- Charts Section -->
+        <div class="charts">
+          <div class="chart-card">
+            <h3>Number of Candidates</h3>
+            <canvas id="candidatesChart" width="400" height="200"></canvas>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot females"></span> Females: 262.2</div>
+              <div class="legend-item"><span class="legend-dot males"></span> Males: 262.6</div>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>Number of Registered</h3>
+            <canvas id="registeredChart" width="400" height="200"></canvas>
+            <div class="chart-legend">
+              <div class="legend-item"><span class="legend-dot stay"></span> Tunis: 100</div>
+              <div class="legend-item"><span class="legend-dot source"></span> Sousse: 262.6</div>
+              <div class="legend-item"><span class="legend-dot turn"></span> Sfax: 450.16</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Job Posts Table -->
+        <div class="job-posts">
+          <h3>Recent Job Posts</h3>
+          <table>
+            <thead>
+            <tr>
+              <th>Title</th>
+              <th>Type</th>
+              <th>Applications</th>
+              <th>Status</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let job of jobs">
+              <td>{{ job.title }}</td>
+              <td>{{ job.type }}</td>
+              <td>{{ job.applications }}</td>
+              <td>
+                <span class="status" [ngClass]="job.statusClass">{{ job.status }}</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Candidates View -->
+    <div *ngIf="currentView === 'candidates'">
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+        </div>
+        <h1>Candidates</h1>
+      </div>
+      <div class="table" *ngIf="!selectedCandidate">
+        <table>
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let candidate of candidates">
+            <td>{{ candidate.name }}</td>
+            <td>{{ candidate.email }}</td>
+            <td>
+              <button class="btn view-btn" (click)="viewCandidateProfile(candidate)">View Profile</button>
+              <button class="btn delete-btn" (click)="deleteCandidate(candidate)">Delete</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Candidate Profile View -->
+      <div class="profile-view" *ngIf="selectedCandidate">
+        <div class="profile-header">
+          <button class="btn back-btn" (click)="backToListCandidate()"><i class="bi bi-arrow-left"></i> Back</button>
+          <div class="nav-buttons">
+            <button class="btn nav-btn" (click)="previousCandidateProfile()" [disabled]="currentCandidateIndex === 0"><i class="bi bi-arrow-left-short"></i></button>
+            <button class="btn nav-btn" (click)="nextCandidateProfile()" [disabled]="currentCandidateIndex === candidates.length - 1"><i class="bi bi-arrow-right-short"></i></button>
+          </div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-header-content">
+            <div class="profile-pic"></div>
+            <div class="profile-name">{{ selectedCandidate.name }}</div>
+          </div>
+          <div class="profile-details">
+            <div class="details-left">
+              <div class="detail-item">
+                <label>Date Of Birth</label>
+                <p>{{ selectedCandidate.dob }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Phone Number</label>
+                <p>{{ selectedCandidate.phone }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Email</label>
+                <p>{{ selectedCandidate.email }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Country</label>
+                <p>{{ selectedCandidate.country }}</p>
+              </div>
+              <div class="detail-item">
+                <label>City</label>
+                <p>{{ selectedCandidate.city }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Address</label>
+                <p>{{ selectedCandidate.address }}</p>
+              </div>
+            </div>
+            <div class="details-right">
+              <div class="detail-item">
+                <label>Diploma</label>
+                <p>{{ selectedCandidate.diploma }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Specialization</label>
+                <p>{{ selectedCandidate.specialization }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Years of Experience</label>
+                <p>{{ selectedCandidate.yearsOfExperience }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Soft Skills</label>
+                <p>{{ selectedCandidate.softSkills }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Technical Skills</label>
+                <p>{{ selectedCandidate.technicalSkills }}</p>
+              </div>
+              <div class="action-buttons">
+               <button class=" btn-download"><i class="bi bi-file-earmark-arrow-down"></i>Download CV</button>
+                <button class=" btn-download"><i class="bi bi-file-earmark-arrow-down"></i>Download Cover Letter</button>
+              </div>
+              <!--<div class="action-buttons">
+                <button class="btn btn-download" (click)="downloadFile('cv')" *ngIf="selectedCandidate.cvFile; else noCv">
+                  <i class="bi bi-file-earmark-arrow-down"></i> Download CV
+                </button>
+                <ng-template #noCv>
+                  <span class="no-file">No CV Available</span>
+                </ng-template>
+                <button class="btn btn-download" (click)="downloadFile('coverLetter')" *ngIf="selectedCandidate.coverLetterFile; else noCoverLetter">
+                  <i class="bi bi-file-earmark-arrow-down"></i> Download Cover Letter
+                </button>
+                <ng-template #noCoverLetter>
+                  <span class="no-file">No Cover Letter Available</span>
+                </ng-template>
+              </div>
+            </div>-->
+            </div>
+          </div>
+          <div class="delete-button">
+            <button class="btn btn-delete" (click)="deleteCandidate(selectedCandidate)">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Recruiters View -->
+    <div *ngIf="currentView === 'recruiters'">
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+        </div>
+        <h1>Recruiters</h1>
+      </div>
+      <div class="table" *ngIf="!selectedRecruiter">
+        <table>
+          <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let recruiter of recruiters">
+            <td>{{ recruiter.name }}</td>
+            <td>{{ recruiter.companyName }}</td>
+            <td>{{ recruiter.email }}</td>
+            <td>
+              <button class="btn view-btn" (click)="viewRecruiterProfile(recruiter)">View Profile</button>
+              <button class="btn delete-btn" (click)="deleteRecruiter(recruiter)">Delete</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Recruiter Profile View -->
+      <div class="profile-view" *ngIf="currentView === 'recruiters' && selectedRecruiter">
+        <div class="profile-header">
+          <button class="btn back-btn" (click)="backToListRecruiter()">
+            <i class="bi bi-arrow-left"></i> Back
+          </button>
+          <div class="nav-buttons">
+            <button class="btn nav-btn"
+                    (click)="previousRecruiterProfile()"
+                    [disabled]="currentRecruiterIndex === 0">
+              <i class="bi bi-arrow-left-short"></i>
+            </button>
+            <button class="btn nav-btn"
+                    (click)="nextRecruiterProfile()"
+                    [disabled]="currentRecruiterIndex === recruiters.length - 1">
+              <i class="bi bi-arrow-right-short"></i>
+            </button>
+          </div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-header-content">
+            <div class="profile-name">{{ selectedRecruiter.name }}</div>
+          </div>
+          <div class="profile-details">
+            <div class="details-left">
+              <div class="detail-item">
+                <label>Recruiter Email</label>
+                <p>{{ selectedRecruiter.email }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Company Name</label>
+                <p>{{ selectedRecruiter.companyName }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Company Size</label>
+                <p>{{ selectedRecruiter.companySize }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Country</label>
+                <p>{{ selectedRecruiter.country }}</p>
+              </div>
+              <div class="detail-item">
+                <label>City</label>
+                <p>{{ selectedRecruiter.city }}</p>
+              </div>
+            </div>
+            <div class="details-right">
+              <div class="detail-item">
+                <label>Phone Number 1</label>
+                <p>{{ selectedRecruiter.phoneNumber1 }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Phone Number 2</label>
+                <p>{{ selectedRecruiter.phoneNumber2 }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Company Website</label>
+                <p>{{ selectedRecruiter.companyWebsite }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Field</label>
+                <p>{{ selectedRecruiter.field }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Company Description</label>
+                <p>{{ selectedRecruiter.companyDescription }}</p>
+              </div>
+            </div>
+          </div>
+          </div>
+        <!-- Delete Button -->
+        <div class="delete-recruiter">
+          <button class="btn delete-recruiter" (click)="deleteRecruiter(selectedRecruiter)">Delete</button>
+        </div>
+      </div>
+    </div>
+    <!-- Offers List View -->
+    <div *ngIf="currentView === 'offers'">
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+        </div>
+        <h1>Offers</h1>
+      </div>
+      <div class="table" *ngIf="!selectedOffer">
+        <table>
+          <thead>
+          <tr>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Applications</th>
+            <th>Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let offer of Offers">
+            <td>{{ offer.title }}</td>
+            <td>{{ offer.type }}</td>
+            <td>{{ offer.applications}}</td>
+            <td>
+              <button class="btn view-btn" (click)="viewOffer(offer)">View Offer</button>
+              <button class="btn delete-btn" (click)="deleteOffer(offer)">Delete</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- Offer Profile View -->
+    <div class="profile-view" *ngIf="currentView === 'offers' && selectedOffer">
+      <div class="profile-header">
+        <button class="btn back-btn" (click)="backToListOffers()"><i class="bi bi-arrow-left"></i> Back</button>
+      </div>
+      <div class="profile-card">
+        <div class="profile-header-content">
+          <div class="profile-name">{{ selectedOffer.title }}</div>
+          <div class="profile-details">
+            <div class="detail-item">
+              <label>Type</label>
+              <p>{{ selectedOffer.type }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Location</label>
+              <p>{{ selectedOffer.location }}</p>
+            </div>
+            <div class="detail-item">
+              <label>Salary</label>
+              <p>{{ selectedOffer.salary }}</p>
+            </div>
+          </div>
+          <div class="detail-section">
+            <h2>Job Description</h2>
+            <p>{{ selectedOffer.description }}</p>
+          </div>
+          <div class="detail-section">
+            <h2>Duties & Responsibilities</h2>
+            <ul>
+              <li *ngFor="let duty of selectedOffer.duties.split('.')">{{ duty.trim() }}.</li>
+            </ul>
+          </div>
+          <div class="detail-section">
+            <h2>Minimum Qualifications</h2>
+            <ul>
+              <li *ngFor="let qual of selectedOffer.qualifications.split('.')">{{ qual.trim() }}.</li>
+            </ul>
+          </div>
+          <div class="detail-section">
+            <h2>Technical Skills</h2>
+            <ul>
+              <li *ngFor="let duty of selectedOffer.technicalSkills.split('.')">{{ duty.trim() }}.</li>
+            </ul>
+          </div>
+          <div class="detail-section">
+            <h2>Soft Skills</h2>
+            <ul>
+              <li *ngFor="let qual of selectedOffer.softSkills.split('.')">{{ qual.trim() }}.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="delete-button">
+          <button class="btn btn-delete" (click)="deleteOffer(selectedOffer)">Delete</button>
+        </div>
+      </div>
+    </div>
+      <!-- Settings View -->
+    <div *ngIf="currentView === 'settings'">
+      <!-- Home Icon to Return to Dashboard -->
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+        </div>
+      </div>
+      <h1>Settings</h1>
+      <div class="nav-tab active">
+        <i class="bi bi-person-circle"></i>
+        <span class="nav-tab-text">Personal</span>
+      </div>
+
+      <div class="settings-form-card">
+        <form [formGroup]="settingsForm" (ngSubmit)="onSubmitSettings()">
+
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email" placeholder="Enter your email" />
+            <div *ngIf="settingsForm.get('email')?.invalid && settingsForm.get('email')?.touched" class="error">
+              Please enter a valid email address.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">New Password (Optional)</label>
+            <input type="password" id="password" formControlName="password" placeholder="Enter new password" />
+            <div *ngIf="settingsForm.get('password')?.invalid && settingsForm.get('password')?.touched" class="error">
+              Password must be at least 6 characters long.
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" id="confirmPassword" formControlName="confirmPassword" placeholder="Confirm new password" />
+            <div *ngIf="settingsForm.hasError('mismatch') && settingsForm.get('confirmPassword')?.touched" class="error">
+              Passwords do not match.
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" [disabled]="settingsForm.invalid">Save Changes</button>
+            <button type="button" (click)="setView('dashboard')">Cancel</button>
+          </div>
+        </form>
+
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+      </div>
+    </div>
+    </div>
+
+  </div>
+

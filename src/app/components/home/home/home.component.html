@@ -1,0 +1,20 @@
+<app-navbar></app-navbar>
+
+<div class="home-wrapper">
+  <img src="assets/images/Background.png" alt="Background" class="background-img" />
+
+  <div class="details-container">
+    <!-- Conteneur avec position relative pour superposition -->
+    <div class="details-wrapper">
+      <img src="assets/images/details.png" alt="Details section" class="details-img" />
+
+      <!-- Bouton superposé -->
+      <button class="icon-button" (click)="navigateToAboutUs()">
+        <img src="assets/icons/icon-deets.png" alt="Icon" />
+      </button>
+    </div>
+  </div>
+</div>
+<div class="about-us-section">
+  <app-about-us></app-about-us>
+</div>

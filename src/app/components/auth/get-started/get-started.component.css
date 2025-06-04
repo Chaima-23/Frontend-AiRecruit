@@ -1,0 +1,197 @@
+/* Global styles */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
+/* Container */
+.container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 50px 100px;
+
+
+}
+
+/* Left Section regroupée */
+.left-section {
+  display: flex;
+  flex-direction: column;
+  max-width: 50%;
+}
+
+/* Right Section pour l’image */
+.right-section img {
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+  width: 600px;
+  height: 500px;
+  border-radius: 0px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25);
+  margin-top: 30px;
+}
+.masquer-blanc {
+  clip-path: polygon(0% 0%, 90% 0%, 100% 10%, 100% 100%, 0% 100%);
+}
+.right-section {
+  position: relative;
+  display: inline-block;
+}
+
+.text-overlay {
+  margin-top: 40px;
+  position: absolute;
+  text-align: left;
+  padding: 10px;
+  z-index: 1;
+
+}
+
+/* Styles supplémentaires pour le texte */
+.text-overlay h1 {
+  color: rgba(255, 255, 255, 0.95);
+  text-align: left;
+  font-family: Inter, sans-serif;
+  font-size: 55px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -1.4px;
+  margin-top: 5px;
+}
+
+.text-overlay h2 {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: Inter,sans-serif;
+  font-size: 50px;
+  margin-bottom: 0 ;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -1.06px;
+}
+.overlay-text{
+  padding: 10px;
+  margin-top: 125px;
+}
+
+.overlay-text .phrase-1 {
+  display: flex;
+  width: 419px;
+  height: auto;
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #FFF;
+  font-family: Akatab,sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.6px;
+  padding-top: 8px;
+  margin-bottom: 6px;
+}
+
+.overlay-text .phrase-2 {
+  width: 428px;
+  height: auto; /* pareil ici */
+  flex-direction: column;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #A6FFFD;
+  font-family: Akatab, sans-serif;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: normal;
+  letter-spacing: -0.44px;
+}
+
+
+
+/* Header */
+.header {
+  max-width: 500px;
+}
+
+.title {
+  color: #014D88;
+  font-size: 35px;
+  font-weight: 600;
+  margin-bottom: -20px;
+}
+
+.subtitle {
+  color: #014D88;
+  font-family: "Instrument Sans", sans-serif;
+  font-size: 35px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: normal;
+  margin-bottom: -10px;
+}
+
+.description {
+  color: rgba(68, 71, 78, 0.73);
+  font-size: 18px;
+}
+/* Options */
+.options {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  background: #f8f8f8;
+  padding: 20px 15px;
+  border-radius: 0;
+  box-shadow: 0 4px 5px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  transition: all 0.2s ease-in-out;
+}
+
+.option:hover {
+  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.15);
+}
+
+.radio {
+  width: 20px;
+  height: 20px;
+  margin-right: 15px;
+  accent-color: #014D88;
+}
+
+
+.text {
+  color: #014D88;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Button */
+.create-account {
+  margin-top: 30px;
+  padding: 12px 25px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #002d60;
+  background: #4afffc;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease;
+}
+
+.create-account:hover {
+  background: #3ed9d7;
+}
