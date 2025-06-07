@@ -3,7 +3,8 @@ import Chart from 'chart.js/auto';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {AuthRedirectService} from '../../../core/services/Auth-redirect.service';
+import {AdminDashboardService} from '../../../core/services/admin-dashboard.service';
+import { AuthRedirectService } from '../../../core/services/Auth-redirect.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -16,13 +17,6 @@ import {AuthRedirectService} from '../../../core/services/Auth-redirect.service'
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements AfterViewInit {
-  stats = [
-    {title: 'Job Posts', value: 2456, trend: '+2.5%', trendType: 'up'},
-    {title: 'Internship Posts', value: 1250, trend: '+1.5%', trendType: 'up'},
-    {title: 'Total Applications', value: 4561, trend: '-4.4%', trendType: 'down'},
-    {title: 'Total Candidates', value: 10985},
-    {title: 'Total Recruiters', value: 8754}
-  ];
 
   jobs = [
     {
@@ -55,14 +49,6 @@ export class AdminDashboardComponent implements AfterViewInit {
       statusClass: 'expired'
     }
   ];
-
-  currentView: string = 'dashboard';
-  selectedCandidate: any = null;
-  selectedRecruiter: any = null;
-  selectedOffer: any = null;
-  currentCandidateIndex: number = 0;
-  currentRecruiterIndex: number = 0;
-  currentOfferIndex: number = 0;
 
 
   // Liste simulée de candidats
@@ -156,13 +142,28 @@ export class AdminDashboardComponent implements AfterViewInit {
     },
   ];
 
-  // Formulaire pour les paramètres
   settingsForm: FormGroup;
   successMessage: string | null = null;
   errorMessage: string | null = null;
   logoutMessage: string | null = null;
+  currentView: string = 'dashboard';
+  stats: any[] = [];
+  candidatesByGender: any = { Females: 0, Males: 0 };
+  registeredByCountry: { [key: string]: number } = {};
+  selectedCandidate: any = null;
+  selectedRecruiter: any = null;
+  selectedOffer: any = null;
+  currentCandidateIndex: number = 0;
+  currentRecruiterIndex: number = 0;
+  currentOfferIndex: number = 0;
 
-  constructor(private fb: FormBuilder, private router: Router, private authRedirectService: AuthRedirectService) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private adminDashboardService: AdminDashboardService,
+    private authRedirectService: AuthRedirectService
+  ) {
+    // Formulaire pour les paramètres
     this.settingsForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.minLength(6)]],
@@ -172,61 +173,115 @@ export class AdminDashboardComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     if (this.currentView === 'dashboard') {
-      this.initializeCharts();
+      this.loadDashboardStats();
     }
   }
+
+
+  loadDashboardStats(): void {
+    this.adminDashboardService.getDashboardStats().subscribe({
+      next: (data) => {
+        console.log('Fetched data:', data); // Debug: Log the response
+        // Map backend data to stats array for cards
+        this.stats = [
+          { title: 'Job Posts', value: data.totalJobOffers || 0 },
+          { title: 'Internship Posts', value: data.totalInternshipOffers || 0 },
+          { title: 'Total Applications', value: data.totalApplications || 0 },
+          { title: 'Total Candidates', value: data.totalCandidates || 0 },
+          { title: 'Total Recruiters', value: data.totalRecruiters || 0 }
+        ];
+
+        // Update candidatesByGender for the chart
+        this.candidatesByGender = data.candidatesByGender || { Females: 0, Males: 0 };
+
+        // Update registeredByCountry for the chart
+        this.registeredByCountry = data.registeredByCountry || {};
+
+        // Initialize charts after data is loaded
+        this.initializeCharts();
+      },
+      error: (error) => {
+        console.error('Error fetching dashboard stats:', error);
+        // Fallback data in case of error
+        this.stats = [
+          { title: 'Job Posts', value: 0 },
+          { title: 'Internship Posts', value: 0 },
+          { title: 'Total Applications', value: 0 },
+          { title: 'Total Candidates', value: 0 },
+          { title: 'Total Recruiters', value: 0 }
+        ];
+        this.candidatesByGender = { Females: 0, Males: 0 };
+        this.registeredByCountry = {};
+        this.initializeCharts(); // Still initialize charts with fallback data
+      }
+    });
+  }
+  private candidatesChart: Chart | null = null;
+  private registeredChart: Chart | null = null;
 
   initializeCharts(): void {
-    const candidatesCtx = (document.getElementById('candidatesChart') as HTMLCanvasElement)?.getContext('2d');
-    if (candidatesCtx) {
-      new Chart(candidatesCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Females', 'Males'],
-          datasets: [{
-            data: [262.2, 262.6],
-            backgroundColor: ['#ff6384', '#36a2eb'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          cutout: '70%',
-          plugins: {
-            legend: {display: false}
-          }
-        }
-      });
-    }
+    if (this.candidatesChart) this.candidatesChart.destroy();
+    if (this.registeredChart) this.registeredChart.destroy();
 
-    const registeredCtx = (document.getElementById('registeredChart') as HTMLCanvasElement)?.getContext('2d');
-    if (registeredCtx) {
-      new Chart(registeredCtx, {
-        type: 'doughnut',
-        data: {
-          labels: ['Tunis', 'Sousse', 'Sfax'],
-          datasets: [{
-            data: [100, 262.6, 450.16],
-            backgroundColor: ['#055695', '#2CBCD5', '#B4DFE5'],
-            borderWidth: 0
-          }]
-        },
-        options: {
-          responsive: true,
-          cutout: '70%',
-          plugins: {
-            legend: {display: false}
+    setTimeout(() => {
+      const candidatesCanvas = document.getElementById('candidatesChart') as HTMLCanvasElement;
+      if (candidatesCanvas) {
+        this.candidatesChart = new Chart(candidatesCanvas, {
+          type: 'bar',
+          data: {
+            labels: ['Females', 'Males'],
+            datasets: [{
+              label: 'Number of Candidates',
+              data: [this.candidatesByGender.Females, this.candidatesByGender.Males],
+              backgroundColor: ['#FF6384', '#36A2EB'],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { display: true } }
           }
-        }
-      });
-    }
+        });
+      } else {
+        console.error('candidatesChart canvas not found');
+      }
+
+      const registeredCanvas = document.getElementById('registeredChart') as HTMLCanvasElement;
+      const countryLabels = Object.keys(this.registeredByCountry);
+      const countryData = Object.values(this.registeredByCountry);
+      if (registeredCanvas && countryLabels.length > 0) {
+        this.registeredChart = new Chart(registeredCanvas, {
+          type: 'bar',
+          data: {
+            labels: countryLabels,
+            datasets: [{
+              label: 'Number of Registered',
+              data: countryData,
+              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { display: true } }
+          }
+        });
+      } else {
+        console.warn('No data or registeredChart canvas not found');
+      }
+    }, 100); // Increased delay for DOM readiness
   }
-
-  // Gestion de la navigation dans la barre latérale
+  /*Gestion de la navigation dans la barre latérale
   setView(view: string): void {
     this.currentView = view;
     if (view === 'dashboard') {
       setTimeout(() => this.initializeCharts(), 0);
+    }
+  }*/
+  setView(view: string): void {
+    this.currentView = view;
+    if (view === 'dashboard') {
+      this.loadDashboardStats(); // Ensure data is reloaded when switching to dashboard
     }
   }
 
@@ -252,7 +307,13 @@ export class AdminDashboardComponent implements AfterViewInit {
     }
   }
 
-
+  logout(): void {
+    this.logoutMessage = 'You are logged out from your space';
+    this.authRedirectService.logout();
+    setTimeout(() => {
+      this.logoutMessage = null;
+    }, 3000);
+  }
   // Afficher le profil
   viewCandidateProfile(candidate: any): void {
     this.selectedCandidate = candidate;
@@ -267,21 +328,7 @@ export class AdminDashboardComponent implements AfterViewInit {
     this.currentOfferIndex = this.Offers.indexOf(offer);
   }
 
-  /*downloadFile(fileType: string) {
-    if (!this.selectedCandidate) return;
 
-    const file = fileType === 'cv' ? this.selectedCandidate.cvFile : this.selectedCandidate.coverLetterFile;
-    const fileName = fileType === 'cv' ? `${this.selectedCandidate.name}_CV.pdf` : `${this.selectedCandidate.name}_CoverLetter.pdf`;
-
-    if (file) {
-      const link = document.createElement('a');
-      link.href = file;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  }*/
 
 
   // Retourner à la liste des candidats
@@ -372,12 +419,6 @@ export class AdminDashboardComponent implements AfterViewInit {
       }
     }
   }
-
-  logout(): void {
-    this.authRedirectService.logout();
-  }
-
-
 
 }
 

@@ -47,17 +47,17 @@
             <h3>Number of Candidates</h3>
             <canvas id="candidatesChart" width="400" height="200"></canvas>
             <div class="chart-legend">
-              <div class="legend-item"><span class="legend-dot females"></span> Females: 262.2</div>
-              <div class="legend-item"><span class="legend-dot males"></span> Males: 262.6</div>
+              <div class="legend-item"><span class="legend-dot females"></span> Females: {{ candidatesByGender.Females }}</div>
+              <div class="legend-item"><span class="legend-dot males"></span> Males: {{ candidatesByGender.Males }}</div>
             </div>
           </div>
           <div class="chart-card">
             <h3>Number of Registered</h3>
             <canvas id="registeredChart" width="400" height="200"></canvas>
             <div class="chart-legend">
-              <div class="legend-item"><span class="legend-dot stay"></span> Tunis: 100</div>
-              <div class="legend-item"><span class="legend-dot source"></span> Sousse: 262.6</div>
-              <div class="legend-item"><span class="legend-dot turn"></span> Sfax: 450.16</div>
+              <div class="legend-item" *ngFor="let country of registeredByCountry | keyvalue">
+                <span [ngClass]="['legend-dot', country.key.toLowerCase()]"></span> {{ country.key }}: {{ country.value }}
+              </div>
             </div>
           </div>
         </div>
@@ -131,7 +131,6 @@
         </div>
         <div class="profile-card">
           <div class="profile-header-content">
-            <div class="profile-pic"></div>
             <div class="profile-name">{{ selectedCandidate.name }}</div>
           </div>
           <div class="profile-details">
@@ -182,25 +181,6 @@
                 <label>Technical Skills</label>
                 <p>{{ selectedCandidate.technicalSkills }}</p>
               </div>
-              <div class="action-buttons">
-               <button class=" btn-download"><i class="bi bi-file-earmark-arrow-down"></i>Download CV</button>
-                <button class=" btn-download"><i class="bi bi-file-earmark-arrow-down"></i>Download Cover Letter</button>
-              </div>
-              <!--<div class="action-buttons">
-                <button class="btn btn-download" (click)="downloadFile('cv')" *ngIf="selectedCandidate.cvFile; else noCv">
-                  <i class="bi bi-file-earmark-arrow-down"></i> Download CV
-                </button>
-                <ng-template #noCv>
-                  <span class="no-file">No CV Available</span>
-                </ng-template>
-                <button class="btn btn-download" (click)="downloadFile('coverLetter')" *ngIf="selectedCandidate.coverLetterFile; else noCoverLetter">
-                  <i class="bi bi-file-earmark-arrow-down"></i> Download Cover Letter
-                </button>
-                <ng-template #noCoverLetter>
-                  <span class="no-file">No Cover Letter Available</span>
-                </ng-template>
-              </div>
-            </div>-->
             </div>
           </div>
           <div class="delete-button">
@@ -311,7 +291,7 @@
               </div>
             </div>
           </div>
-          </div>
+        </div>
         <!-- Delete Button -->
         <div class="delete-recruiter">
           <button class="btn delete-recruiter" (click)="deleteRecruiter(selectedRecruiter)">Delete</button>
@@ -408,7 +388,7 @@
         </div>
       </div>
     </div>
-      <!-- Settings View -->
+    <!-- Settings View -->
     <div *ngIf="currentView === 'settings'">
       <!-- Home Icon to Return to Dashboard -->
       <div class="header">
@@ -461,7 +441,7 @@
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
       </div>
     </div>
-    </div>
-
   </div>
+
+</div>
 

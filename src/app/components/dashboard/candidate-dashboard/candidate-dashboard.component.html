@@ -1,101 +1,297 @@
 <div class="container">
-  <div class="sidebar" *ngIf="currentView !== 'settings' && currentView !== 'offers' && currentView !== 'applications'">
-    <div class="top-nav">
-      <div class="logo-container">
-        <div class="logo">
-          <img src="assets/icons/Logo.png" alt="Logo" />
-        </div>
-      </div>
-      <ul>
-        <li [class.active]="currentView === 'dashboard'" (click)="setView('dashboard')"><i class="bi bi-house-door"></i> Dashboard</li>
-        <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers</li>
-        <li [class.active]="currentView === 'applications'" (click)="setView('applications')"><i class="bi bi-file-earmark"></i> Applications</li>
-      </ul>
-    </div>
-    <div class="bottom-nav">
-      <ul>
-        <li [class.active]="currentView === 'settings'" (click)="setView('settings')"><i class="bi bi-gear"></i> Settings</li>
-        <li (click)="logout()"><i class="bi bi-box-arrow-right"></i> Log Out</li>
-      </ul>
-    </div>
-    <div *ngIf="logoutMessage" class="logout-message">
-      {{ logoutMessage }}
+  <!-- Navigation Bar -->
+  <div class="nav-bar">
+    <ul class="nav-tabs">
+      <li [class.active]="currentView === 'personal'" (click)="setView('personal')"><i class="bi bi-person-circle"></i> Personal</li>
+      <li [class.active]="currentView === 'profile'" (click)="setView('profile')"><i class="bi bi-person"></i> Profile</li>
+      <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers</li>
+      <li [class.active]="currentView === 'my-applications'" (click)="setView('my-applications')"><i class="bi bi-file-earmark-text"></i> My Applications</li>
+    </ul>
+    <div class="nav-logout" (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i> Log Out
     </div>
   </div>
 
   <!-- Main Content -->
-  <div class="main-content" [ngClass]="{'full-width': currentView === 'settings'}">
-    <!-- Dashboard View -->
-    <div *ngIf="currentView === 'dashboard'">
-      <h1>Dashboard</h1>
-      <p class="welcome">Welcome back, Ronald</p>
-
-      <!-- Stats Cards -->
-      <div class="stats-container">
-        <div class="stat-card" id="candidates">
-          <div class="stat-content">
-            <div class="stat-left">
-              <h3>Candidates</h3>
-              <div class="stat-number">250</div>
-              <div class="legend">
-                <span class="legend-item female">Females</span>
-                <span class="legend-item male">Males</span>
+  <div class="main-content">
+    <!-- Personal View -->
+    <div *ngIf="currentView === 'personal'">
+      <div class="welcome-message">
+        <h2>Welcome back {{ personalForm.get('firstName')?.value || 'Candidate' }}</h2>
+      </div>
+      <div class="settings-form-card">
+        <div class="settings-header">
+          <h1>Personal Information</h1>
+        </div>
+        <form [formGroup]="personalForm" (ngSubmit)="onSubmitPersonal()">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" formControlName="firstName" placeholder="Enter your first name" />
+            <div *ngIf="personalForm.get('firstName')?.invalid && personalForm.get('firstName')?.touched" class="error">
+              First Name is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" formControlName="lastName" placeholder="Enter your last name" />
+            <div *ngIf="personalForm.get('lastName')?.invalid && personalForm.get('lastName')?.touched" class="error">
+              Last Name is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" formControlName="email" placeholder="Enter your email" />
+            <div *ngIf="personalForm.get('email')?.invalid && personalForm.get('email')?.touched" class="error">
+              Please enter a valid email address.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dateOfBirth">Date of Birth</label>
+            <input type="date" id="dateOfBirth" formControlName="dateOfBirth" />
+            <div *ngIf="personalForm.get('dateOfBirth')?.invalid && personalForm.get('dateOfBirth')?.touched" class="error">
+              Date of Birth is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="gender">Gender</label>
+            <select id="gender" formControlName="gender">
+              <option value="" disabled selected>Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+            <div *ngIf="personalForm.get('gender')?.invalid && personalForm.get('gender')?.touched" class="error">
+              Gender is required.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="country">Country</label>
+            <select id="country" formControlName="country" (change)="onCountryChange($event)">
+              <option value="" disabled selected>Country</option>
+              <option value="france">France</option>
+              <option value="germany">Germany</option>
+              <option value="spain">Spain</option>
+              <option value="italy">Italy</option>
+              <option value="belgium">Belgium</option>
+              <option value="netherlands">Netherlands</option>
+              <option value="sweden">Sweden</option>
+              <option value="norway">Norway</option>
+              <option value="morocco">Morocco</option>
+              <option value="algeria">Algeria</option>
+              <option value="tunisia">Tunisia</option>
+              <option value="egypt">Egypt</option>
+              <option value="lebanon">Lebanon</option>
+              <option value="jordan">Jordan</option>
+              <option value="iraq">Iraq</option>
+              <option value="palestine">Palestine</option>
+              <option value="syria">Syria</option>
+              <option value="uae">United Arab Emirates</option>
+              <option value="saudi">Saudi Arabia</option>
+              <option value="Other">Other</option>
+            </select>
+            <div *ngIf="personalForm.get('country')?.invalid && personalForm.get('country')?.touched" class="error">
+              Country is required.
+            </div>
+            <input *ngIf="isOtherCountry" type="text" formControlName="otherCountry" placeholder="Enter country" />
+          </div>
+          <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" formControlName="city" placeholder="Enter your city" />
+          </div>
+          <div class="form-group">
+            <label for="address">Address</label>
+            <input type="text" id="address" formControlName="address" placeholder="Enter your address" />
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber">Phone Number</label>
+            <input type="tel" id="phoneNumber" formControlName="phoneNumber" placeholder="Enter your phone number" />
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn" [disabled]="personalForm.invalid">Save Changes</button>
+          </div>
+        </form>
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+      </div>
+    </div>
+    <!-- Profile View -->
+    <div *ngIf="currentView === 'profile'" class="profile-view">
+      <div class="settings-form-card">
+        <div class="settings-header">
+          <h1>Profile</h1>
+        </div>
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmitProfile()" class="profile-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+            <div>
+              <div class="form-group">
+                <label for="diploma">Diploma</label>
+                <input type="text" id="diploma" formControlName="diploma" placeholder="Enter your diploma" />
+              </div>
+              <div class="form-group">
+                <label for="specialization">Specialization</label>
+                <input type="text" id="specialization" formControlName="specialization" placeholder="Enter your specialization" />
+              </div>
+              <div class="form-group">
+                <label for="yearsOfExperience">Years of Experience</label>
+                <input type="number" id="yearsOfExperience" formControlName="yearsOfExperience" placeholder="Enter years of experience" min="0" />
               </div>
             </div>
-            <div class="stat-right">
-              <canvas id="candidatesPieChart" class="pie-chart"></canvas>
+            <div>
+              <div class="form-group">
+                <label for="technicalSkills">Technical Skills</label>
+                <textarea id="technicalSkills" formControlName="technicalSkills" placeholder="List your technical skills"></textarea>
+              </div>
+              <div class="form-group">
+                <label for="softSkills">Soft Skills</label>
+                <textarea id="softSkills" formControlName="softSkills" placeholder="List your soft skills"></textarea>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="stat-card" id="accepted">
-          <div class="stat-content">
-            <div class="stat-left">
-              <h3>Accepted</h3>
-              <div class="stat-number">52</div>
-            </div>
-            <div class="stat-right">
-              <i class="bi bi-check-circle"></i>
-            </div>
+          <div class="form-actions">
+            <button type="submit" class="save-btn">Save Changes</button>
           </div>
-        </div>
-        <div class="stat-card" id="pending">
-          <div class="stat-content">
-            <div class="stat-left">
-              <h3>Pending</h3>
-              <div class="stat-number">7</div>
-            </div>
-            <div class="stat-right">
-              <i class="bi bi-clock"></i>
-            </div>
-          </div>
-        </div>
-    </div>
-  </div>
-    <div class="stat-card" id="dailyviews">
-      <h3>Daily Profile Views</h3>
-      <div class="bar-chart">
-        <ngx-charts-bar-vertical
-          [results]="dailyViewsData"
-          class="ngx-bar-chart"
-        ></ngx-charts-bar-vertical>
-      </div>
-      <div class="bar-labels">
-        <span>M</span><span>Tu</span><span>W</span><span>Th</span><span>F</span><span>Sa</span><span>Su</span>
+        </form>
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
       </div>
     </div>
-    <div class="stat-card" id="topscorers">
-      <div class="top-scorer-container">
-        <h3>Top Scorers</h3>
-        <div class="top-scorer-cards">
-          <div class="top-scorer-card" *ngFor="let scorer of topScorers">
-            <div class="top-scorer-name">{{ scorer.name }}</div>
-            <div class="top-scorer-title">{{ scorer.title }}</div>
-            <div class="top-scorer-percentage">{{ scorer.percentage }}</div>
-            <div class="top-scorer-rank">{{ scorer.rank }}</div>
+
+    <!-- Offers View -->
+    <div *ngIf="currentView === 'offers'" class="offers-view">
+      <div class="settings-form-card">
+        <div class="settings-header">
+          <h1>Latest Offers Listing</h1>
+        </div>
+        <div class="offers-container">
+          <div class="offer-card" *ngFor="let offer of displayedOffers">
+            <div class="offer-header">
+              <span class="location">{{ offer.location }}</span>
+              <a href="javascript:void(0)" class="details-link" (click)="showOfferDetails(offer)">Details</a>
+            </div>
+            <div class="offer-company">{{ offer.company }}</div>
+            <div class="offer-title">{{ offer.title }}</div>
+            <div class="offer-description">{{ offer.description }}</div>
+            <div class="offer-tools">Tools: {{ offer.tools.join(', ') }}</div>
+            <div class="offer-details">
+              <span class="offer-type">{{ offer.type }}</span>
+              <span class="offer-salary">{{ offer.salary }} DT</span>
+            </div>
+            <button class="apply-btn">APPLY NOW</button>
+          </div>
+        </div>
+        <div class="pagination">
+          <button class="page-btn arrow-btn" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="bi bi-arrow-left"></i>
+          </button>
+          <span class="current-page">{{ currentPage }}</span>
+          <button class="page-btn arrow-btn" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal for Offer Details -->
+    <div *ngIf="selectedOffer" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>{{ selectedOffer.title }}</h2>
+          <button class="close-btn" (click)="closeModal()">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="offer-details-grid">
+            <div class="detail-item">
+              <strong>Field:</strong> {{ selectedOffer.field }}
+            </div>
+            <div class="detail-item">
+              <strong>Country:</strong> {{ selectedOffer.country }}
+            </div>
+            <div class="detail-item">
+              <strong>City:</strong> {{ selectedOffer.city }}
+            </div>
+            <div class="detail-item">
+              <strong>Minimum Qualifications:</strong> {{ selectedOffer.minimumQualifications }}
+            </div>
+            <div class="detail-item">
+              <strong>Duties & Responsibilities:</strong> {{ selectedOffer.dutiesResponsibilities }}
+            </div>
+            <div class="detail-item">
+              <strong>Tools:</strong> {{ selectedOffer.tools.join(', ') }}
+            </div>
+            <div class="detail-item">
+              <strong>Salary:</strong> {{ selectedOffer.salary }} DT
+            </div>
+            <div class="detail-item">
+              <strong>Deadline:</strong> {{ selectedOffer.deadline }}
+            </div>
+            <div class="detail-item">
+              <strong>Work Mode:</strong> {{ selectedOffer.workMode }}
+            </div>
+            <div class="detail-item">
+              <strong>Status:</strong> {{ selectedOffer.status }}
+            </div>
+            <div class="detail-item">
+              <strong>Offer Type:</strong> {{ selectedOffer.type }}
+            </div>
+            <!-- Full Time Specific Fields -->
+            <ng-container *ngIf="selectedOffer.type === 'Full Time'">
+              <div class="detail-item">
+                <strong>Working Hours:</strong> {{ selectedOffer.workingHours }}
+              </div>
+              <div class="detail-item">
+                <strong>Benefits:</strong> {{ selectedOffer.benefits }}
+              </div>
+              <div class="detail-item">
+                <strong>Position:</strong> {{ selectedOffer.position }}
+              </div>
+              <div class="detail-item">
+                <strong>Contract Type:</strong> {{ selectedOffer.contractType }}
+              </div>
+            </ng-container>
+            <!-- Part Time Specific Fields -->
+            <ng-container *ngIf="selectedOffer.type === 'Part Time'">
+              <div class="detail-item">
+                <strong>Working Hours:</strong> {{ selectedOffer.workingHours }}
+              </div>
+              <div class="detail-item">
+                <strong>Schedule:</strong> {{ selectedOffer.schedule }}
+              </div>
+              <div class="detail-item">
+                <strong>Position:</strong> {{ selectedOffer.position }}
+              </div>
+            </ng-container>
+            <!-- Internship Specific Fields -->
+            <ng-container *ngIf="selectedOffer.type === 'Internship'">
+              <div class="detail-item">
+                <strong>Start Date:</strong> {{ selectedOffer.startDate }}
+              </div>
+              <div class="detail-item">
+                <strong>End Date:</strong> {{ selectedOffer.endDate }}
+              </div>
+            </ng-container>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="apply-btn" (click)="closeModal()">Apply Now</button>
+        </div>
+      </div>
+    </div>
+    <!-- My Applications View -->
+    <div *ngIf="currentView === 'my-applications'" class="my-applications-view">
+      <div class="settings-form-card">
+        <div class="settings-header">
+          <h1>My Applications</h1>
+        </div>
+        <div class="applications-list">
+          <div *ngIf="myApplications.length === 0" class="no-applications">
+            You have not applied to any offers yet.
+          </div>
+          <div *ngFor="let application of myApplications" class="application-item">
+            {{ application.title }}
           </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-

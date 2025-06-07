@@ -1,0 +1,408 @@
+<div class="container">
+  <div class="sidebar" *ngIf="currentView !== 'settings' && currentView !== 'offers' && currentView !== 'reports'">
+    <div class="top-nav">
+      <div class="logo-container">
+        <div class="logo">
+          <img src="assets/icons/Logo.png" alt="Logo" />
+        </div>
+      </div>
+      <ul>
+        <li [class.active]="currentView === 'dashboard'" (click)="setView('dashboard')"><i class="bi bi-house-door"></i> Dashboard</li>
+        <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers</li>
+        <li [class.active]="currentView === 'reports'" (click)="setView('reports')"><i class="bi bi-file-earmark"></i> Reports</li>
+      </ul>
+    </div>
+    <div class="bottom-nav">
+      <ul>
+        <li [class.active]="currentView === 'settings'" (click)="setView('settings')"><i class="bi bi-gear"></i> Settings</li>
+        <li (click)="logout()"><i class="bi bi-box-arrow-right"></i> Log Out</li>
+      </ul>
+    </div>
+    <div *ngIf="logoutMessage" class="logout-message">
+      {{ logoutMessage }}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" [ngClass]="{'full-width': currentView === 'settings'}">
+    <!-- Dashboard View -->
+    <div *ngIf="currentView === 'dashboard'">
+      <h1>Dashboard</h1>
+      <p class="welcome">Welcome back, Ons</p>
+
+      <!-- Stats Cards -->
+      <div class="stats-container">
+        <div class="stats-container-top">
+          <div class="stat-card" id="candidates">
+            <div class="stat-content">
+              <div class="stat-left">
+                <h3>Candidates</h3>
+                <div class="stat-number">12</div>
+                <div class="legend">
+                  <span class="legend-item female">Females</span>
+                  <span class="legend-item male">Males</span>
+                </div>
+              </div>
+              <div class="stat-right">
+                <canvas id="candidatesPieChart" class="pie-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card" id="accepted">
+            <div class="stat-content">
+              <div class="stat-left">
+                <h3>Accepted</h3>
+                <div class="stat-number">4</div>
+              </div>
+              <div class="stat-right">
+                <i class="bi bi-check-circle"></i>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card" id="refused">
+            <div class="stat-content">
+              <div class="stat-left">
+                <h3>Refused</h3>
+                <div class="stat-number">6</div>
+              </div>
+              <div class="stat-right">
+                <i class="bi bi-x-circle"></i>
+              </div>
+            </div>
+          </div>
+          <div class="stat-card" id="total-applications">
+            <div class="stat-content">
+              <div class="stat-left">
+                <h3>Total Applications</h3>
+                <div class="stat-number">10</div>
+              </div>
+              <div class="stat-right">
+                <i class="bi bi-file-earmark-text"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="stats-container-bottom">
+          <div class="stat-card" id="dailyviews">
+            <h3>Daily Offers Views</h3>
+            <div class="bar-chart">
+              <ngx-charts-bar-vertical
+                [results]="dailyViewsData"
+                [scheme]="colorScheme"
+                class="ngx-bar-chart"
+              ></ngx-charts-bar-vertical>
+            </div>
+            <div class="bar-labels">
+              <span>M</span><span>Tu</span><span>W</span><span>Th</span><span>F</span><span>Sa</span><span>Su</span>
+            </div>
+          </div>
+          <div class="stat-card" id="topscorers">
+            <div class="top-scorer-container">
+              <div class="header-container">
+                <h3>Top Scorers</h3>
+                <div class="sort-container">
+                  <label for="sort-date">Sort by Date: </label>
+                  <input type="date" id="sort-date" (change)="sortByDate($event)" />
+                </div>
+              </div>
+              <div class="top-scorer-cards">
+                <div class="top-scorer-card" *ngFor="let scorer of topScorers">
+                  <div class="top-scorer-name">{{ scorer.name }}</div>
+                  <div class="top-scorer-title">{{ scorer.title }}</div>
+                  <div class="top-scorer-percentage">{{ scorer.percentage }}</div>
+                  <div class="top-scorer-rank">{{ scorer.rank }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Offers View -->
+    <div *ngIf="currentView === 'offers'">
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+        </div>
+        <h1>Offers</h1>
+        <div class="offers-tabs">
+          <button [class.active]="offersTab === 'post'" (click)="setOffersTab('post')">
+            <i class="bi bi-plus-circle"></i> Post an offer
+          </button>
+          <button [class.active]="offersTab === 'my-offers'" (click)="setOffersTab('my-offers')">
+            <i class="bi bi-list"></i> My offers
+          </button>
+        </div>
+      </div>
+
+      <!-- Post Offer or Update Offer Form -->
+      <div *ngIf="offersTab === 'post'" class="offers-content">
+        <div class="offers-form-card">
+          <h2>{{ isEditing ? 'Update Offer' : 'Post an Offer' }}</h2>
+          <form [formGroup]="offerForm" (ngSubmit)="onSubmitOffer()">
+            <div class="form-group">
+              <label for="offer-description">Description (Offer Title)</label>
+              <input type="text" id="offer-description" formControlName="description" placeholder="Enter the offer title" />
+            </div>
+            <div class="form-group">
+              <label for="offer-field">Field</label>
+              <input type="text" id="offer-field" formControlName="field" placeholder="Enter the field" />
+            </div>
+            <div class="form-group">
+              <label for="offer-country">Country</label>
+              <select id="offer-country" formControlName="country" (change)="onCountryChange($event)">
+                <option value="" disabled selected>Select a country</option>
+                <option value="France">France</option>
+                <option value="USA">USA</option>
+                <option value="Germany">Germany</option>
+                <option value="other">Other</option>
+              </select>
+              <div *ngIf="showOtherCountry" class="form-group">
+                <input type="text" id="offer-otherCountry" formControlName="otherCountry" placeholder="Enter another country" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="offer-city">City</label>
+              <input type="text" id="offer-city" formControlName="city" placeholder="Enter the city" />
+            </div>
+            <div class="form-group">
+              <label for="offer-minQualifications">Min Qualifications</label>
+              <textarea id="offer-minQualifications" formControlName="minQualifications" placeholder="Enter minimum qualifications"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="offer-duties">Duties & Responsibilities</label>
+              <textarea id="offer-duties" formControlName="duties" placeholder="Enter duties and responsibilities"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="offer-tools">Tools</label>
+              <input type="text" id="offer-tools" formControlName="tools" placeholder="Enter the tools" />
+            </div>
+            <div class="form-group">
+              <label for="offer-salary">Salary</label>
+              <input type="text" id="offer-salary" formControlName="salary" placeholder="Enter the salary" />
+            </div>
+            <div class="form-group">
+              <label for="offer-deadline">Deadline</label>
+              <input type="date" id="offer-deadline" formControlName="deadline" />
+            </div>
+            <div class="form-group">
+              <label for="offer-workMode">Work Mode</label>
+              <select id="offer-workMode" formControlName="workMode">
+                <option value="" disabled selected>Select work mode</option>
+                <option value="Onsite">Onsite</option>
+                <option value="Remote">Remote</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offer-status">Status</label>
+              <select id="offer-status" formControlName="status">
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="offer-offerType">Offer Type</label>
+              <select id="offer-offerType" formControlName="offerType" (change)="onOfferTypeChange($event)">
+                <option value="" disabled selected>Select offer type</option>
+                <option value="Full-time">Full-time</option>
+                <option value="Part-time">Part-time</option>
+                <option value="Internship">Internship</option>
+              </select>
+            </div>
+
+            <!-- Conditional fields based on offerType -->
+            <div class="conditional-fields">
+              <div *ngIf="offerType === 'Full-time'">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="offer-position">Position</label>
+                    <input type="text" id="offer-position" formControlName="position" placeholder="Add the position" />
+                  </div>
+                  <div class="form-group">
+                    <label for="offer-workingHours">Working Hours</label>
+                    <input type="text" id="offer-workingHours" formControlName="workingHours" placeholder="Add working hours" />
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="offer-benefits">Benefits</label>
+                    <input type="text" id="offer-benefits" formControlName="benefits" placeholder="Add benefits" />
+                  </div>
+                  <div class="form-group">
+                    <label for="offer-contractType">Contract Type</label>
+                    <input type="text" id="offer-contractType" formControlName="contractType" placeholder="Add contract type" />
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="offerType === 'Part-time'">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="offer-position-parttime">Position</label>
+                    <input type="text" id="offer-position-parttime" formControlName="position" placeholder="Add the position" />
+                  </div>
+                  <div class="form-group">
+                    <label for="offer-workingHours-parttime">Working Hours</label>
+                    <input type="text" id="offer-workingHours-parttime" formControlName="workingHours" placeholder="Add working hours" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="offer-schedule">Schedule</label>
+                  <input type="text" id="offer-schedule" formControlName="schedule" placeholder="Add schedule" />
+                </div>
+              </div>
+
+              <div *ngIf="offerType === 'Internship'">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label for="offer-startDate">Start Date</label>
+                    <input type="date" id="offer-startDate" formControlName="startDate" />
+                  </div>
+                  <div class="form-group">
+                    <label for="offer-endDate">End Date</label>
+                    <input type="date" id="offer-endDate" formControlName="endDate" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-btn">
+              <button type="button" class="cancel-btn" (click)="cancelUpdate()" *ngIf="isEditing">Cancel</button>
+              <button type="submit" class="post-btn">{{ isEditing ? 'Update Offer' : 'Post now' }}</button>
+            </div>
+          </form>
+          <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+          <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+        </div>
+      </div>
+
+      <!-- My Offers -->
+      <div *ngIf="offersTab === 'my-offers'" class="offers-content">
+        <div class="table">
+          <table>
+            <thead>
+            <tr>
+              <th>My Offers</th>
+              <th>Application</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let offer of offers">
+              <td>{{ offer.description }}</td>
+              <td>{{ offer.applications }}</td>
+              <td>{{ offer.offerType }}</td>
+              <td [ngClass]="{
+                  'status-active': offer.status === 'Active',
+                  'status-expired': offer.status === 'Expired'
+                }">
+                {{ offer.status }}
+              </td>
+              <td>
+                <button class="btn view-btn" (click)="viewApplications(offer)">View Applications</button>
+                <button class="btn edit-btn" (click)="updateOffer(offer)">Update</button>
+                <button class="btn delete-btn" (click)="deleteOffer(offer)">Delete</button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Settings View -->
+    <div *ngIf="currentView === 'settings'">
+      <!-- Header -->
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+        </div>
+        <h1>Settings</h1>
+      </div>
+      <div class="nav-tab active">
+        <i class="bi bi-person-circle"></i>
+        <span class="nav-tab-text">Personal</span>
+      </div>
+
+      <!-- Settings Form -->
+      <div class="settings-form-card">
+        <form [formGroup]="settingsForm" (ngSubmit)="onSubmitSettings()">
+          <div class="form-group">
+            <label for="recruiterName">Recruiter Name</label>
+            <input type="text" id="recruiterName" formControlName="recruiterName" placeholder="Enter recruiter name" />
+          </div>
+          <div class="form-group">
+            <label for="recruiterEmail">Recruiter Email</label>
+            <input type="email" id="recruiterEmail" formControlName="recruiterEmail" placeholder="Enter recruiter email" />
+            <div *ngIf="settingsForm.get('recruiterEmail')?.invalid && settingsForm.get('recruiterEmail')?.touched" class="error">
+              Please enter a valid email address.
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="companyName">Company Name</label>
+            <input type="text" id="companyName" formControlName="companyName" placeholder="Enter company name" />
+          </div>
+          <div class="form-group">
+            <label for="companySize">Company Size</label>
+            <select id="companySize" formControlName="companySize">
+              <option value="" disabled selected>Select company size</option>
+              <option value="1-10">1-10</option>
+              <option value="11-50">11-50</option>
+              <option value="51-200">51-200</option>
+              <option value="201+">201+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="country">Country</label>
+            <input type="text" id="country" formControlName="country" placeholder="Enter country" />
+          </div>
+          <div class="form-group">
+            <label for="city">City</label>
+            <input type="text" id="city" formControlName="city" placeholder="Enter city" />
+          </div>
+          <div class="form-group">
+            <label for="addressLine1">Address Line 1</label>
+            <input type="text" id="addressLine1" formControlName="addressLine1" placeholder="Enter address line 1" />
+          </div>
+          <div class="form-group">
+            <label for="addressLine2">Address Line 2</label>
+            <input type="text" id="addressLine2" formControlName="addressLine2" placeholder="Enter address line 2" />
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber1">Phone Number 1</label>
+            <input type="tel" id="phoneNumber1" formControlName="phoneNumber1" placeholder="Enter phone number 1" />
+          </div>
+          <div class="form-group">
+            <label for="phoneNumber2">Phone Number 2</label>
+            <input type="tel" id="phoneNumber2" formControlName="phoneNumber2" placeholder="Enter phone number 2" />
+          </div>
+          <div class="form-group">
+            <label for="companyWebsite">Company Website</label>
+            <input type="url" id="companyWebsite" formControlName="companyWebsite" placeholder="Enter company website" />
+          </div>
+          <div class="form-group">
+            <label for="field">Field</label>
+            <select id="field" formControlName="field">
+              <option value="" disabled selected>Select field</option>
+              <option value="Technology">Technology</option>
+              <option value="Finance">Finance</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" (click)="setView('dashboard')">Cancel</button>
+            <button type="submit" class="save-btn" [disabled]="settingsForm.invalid">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
