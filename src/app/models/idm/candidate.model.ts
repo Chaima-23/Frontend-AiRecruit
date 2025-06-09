@@ -2,7 +2,7 @@ import { UserModel} from './user.model';
 
 export interface CandidateModel extends UserModel {
   address: string;
-  dateOfBirth: Date;
+  dateOfBirth: Date| null;
   diploma: string;
   experience: string;
   phoneNumber: string;
@@ -10,5 +10,6 @@ export interface CandidateModel extends UserModel {
   city?: string;
   softSkills: string;
   techSkills: string;
+  specialization: string;
 
 }

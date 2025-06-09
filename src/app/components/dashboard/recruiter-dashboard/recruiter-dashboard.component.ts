@@ -1,10 +1,16 @@
-import { Component, AfterViewInit } from '@angular/core'; // Ajout de AfterViewInit pour le graphique
+import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { NgxChartsModule } from '@swimlane/ngx-charts';
 import Chart from 'chart.js/auto';
 import { AuthRedirectService } from '../../../core/services/Auth-redirect.service';
+import { FullTimeJobModel } from '../../../models/offers/full-time-job.model';
+import { PartTimeJobModel } from '../../../models/offers/part-time-job.model';
+import { InternshipOfferModel } from '../../../models/offers/internship-offer.model';
+import { OfferModel } from '../../../models/offers/offer.model';
+import { RecruiterModel } from '../../../models/idm/recruiter.model';
+import {RecruiterDashboardService} from '../../../core/services/recruiter-dashboard.service';
 
 @Component({
   selector: 'app-recruiter-dashboard',
@@ -84,17 +90,11 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     }]
   };
 
-  // Données statiques pour le tableau
-  offers: any[] = [
-    { id: 1, description: 'Software Engineer', applications: 5, offerType: 'Full-time', status: 'Active' },
-    { id: 2, description: 'Marketing Intern', applications: 3, offerType: 'Internship', status: 'Expired' },
-    { id: 3, description: 'Designer', applications: 2, offerType: 'Part-time', status: 'Active' }
-  ];
-
   constructor(
     private router: Router,
     private fb: FormBuilder,
-    private authRedirectService: AuthRedirectService
+    private authRedirectService: AuthRedirectService,
+    private recruiterDashboardService:RecruiterDashboardService
   ) {
     // Initialisation du formulaire des paramètres
     this.settingsForm = this.fb.group({
@@ -136,6 +136,7 @@ export class RecruiterDashboardComponent implements AfterViewInit {
       endDate: ['']
     });
   }
+  offers: any[] = [];
 
   ngAfterViewInit(): void {
     if (this.currentView === 'dashboard') {
@@ -178,7 +179,7 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   setOffersTab(tab: string): void {
     this.offersTab = tab;
     this.selectedOffer = null;
-    this.isEditing = false; // Réinitialiser isEditing lors du changement d'onglet
+    this.isEditing = false;
     this.offerForm.reset();
   }
 
@@ -204,32 +205,105 @@ export class RecruiterDashboardComponent implements AfterViewInit {
 
   onSubmitOffer() {
     if (this.offerForm.valid) {
+      const formValue = this.offerForm.value;
+      const location = `${formValue.country}${formValue.otherCountry ? ` (${formValue.otherCountry})` : ''}, ${formValue.city}`;
+
+      // Définir baseOffer comme un objet complet de type OfferModel
+      const baseOffer: OfferModel = {
+        id: '', // Sera généré par le backend, valeur temporaire
+        deadline: new Date(formValue.deadline),
+        description: formValue.description,
+        dutiesAndResponsibilities: formValue.duties,
+        field: formValue.field,
+        location: location,
+        minQualifications: formValue.minQualifications,
+        salary: parseFloat(formValue.salary),
+        tools: formValue.tools,
+        workMode: formValue.workMode,
+        status: formValue.status,
+        recruiter: { id: 'currentRecruiterId' } as RecruiterModel // Remplacez par l'ID réel
+      };
+
       if (this.isEditing) {
-        // Mise à jour de l'offre existante
-        const updatedOffer = { ...this.offerForm.value, id: this.selectedOffer.id, applications: this.selectedOffer.applications };
-        this.offers = this.offers.map(offer => (offer.id === updatedOffer.id ? updatedOffer : offer));
-        this.successMessage = 'Offer updated successfully!';
-        this.isEditing = false;
-        this.selectedOffer = null;
+        this.successMessage = 'Offer update functionality not implemented yet.';
       } else {
-        // Création d'une nouvelle offre
-        const newOffer = { ...this.offerForm.value, id: this.offers.length + 1, applications: 0 };
-        this.offers.push(newOffer);
-        this.successMessage = 'Offer posted successfully!';
+        switch (formValue.offerType) {
+          case 'Full-time':
+            const fullTimeJob: FullTimeJobModel = {
+              ...baseOffer,
+              position: formValue.position || '',
+              workingHours: parseInt(formValue.workingHours || '0', 10),
+              benefits: formValue.benefits || '',
+              contractType: formValue.contractType || ''
+            };
+            this.recruiterDashboardService.createFullTimeJob(fullTimeJob).subscribe({
+              next: (response) => {
+                this.offers.push(response.data);
+                this.successMessage = response.message;
+                this.errorMessage = null;
+                this.offerForm.reset();
+                this.showOtherCountry = false;
+                this.offerType = '';
+                setTimeout(() => this.successMessage = null, 3000);
+              },
+              error: (error) => {
+                this.errorMessage = 'Error creating offer: ' + (error.error?.message || error.message);
+                this.successMessage = null;
+              }
+            });
+            break;
+          case 'Part-time':
+            const partTimeJob: PartTimeJobModel = {
+              ...baseOffer,
+              position: formValue.position || '',
+              workingHours: parseInt(formValue.workingHours || '0', 10),
+              schedule: formValue.schedule || ''
+            };
+            this.recruiterDashboardService.createPartTimeJob(partTimeJob).subscribe({
+              next: (response) => {
+                this.offers.push(response.data);
+                this.successMessage = response.message;
+                this.errorMessage = null;
+                this.offerForm.reset();
+                this.showOtherCountry = false;
+                this.offerType = '';
+                setTimeout(() => this.successMessage = null, 3000);
+              },
+              error: (error) => {
+                this.errorMessage = 'Error creating offer: ' + (error.error?.message || error.message);
+                this.successMessage = null;
+              }
+            });
+            break;
+          case 'Internship':
+            const internshipOffer: InternshipOfferModel = {
+              ...baseOffer,
+              startDate: new Date(formValue.startDate),
+              endDate: new Date(formValue.endDate)
+            };
+            this.recruiterDashboardService.createInternshipOffer(internshipOffer).subscribe({
+              next: (response) => {
+                this.offers.push(response.data);
+                this.successMessage = response.message;
+                this.errorMessage = null;
+                this.offerForm.reset();
+                this.showOtherCountry = false;
+                this.offerType = '';
+                setTimeout(() => this.successMessage = null, 3000);
+              },
+              error: (error) => {
+                this.errorMessage = 'Error creating offer: ' + (error.error?.message || error.message);
+                this.successMessage = null;
+              }
+            });
+            break;
+        }
       }
-      this.errorMessage = null;
-      this.offerForm.reset();
-      this.showOtherCountry = false;
-      this.offerType = '';
-      setTimeout(() => {
-        this.successMessage = null;
-      }, 3000);
     } else {
       this.errorMessage = 'Please fill out the form correctly.';
       this.successMessage = null;
     }
   }
-
   updateOffer(offer: any) {
     this.selectedOffer = offer;
     this.isEditing = true;

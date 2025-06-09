@@ -910,3 +910,14 @@ form {
   margin-top: 20px;
   text-align: center;
 }
+.filter-section {
+  margin-left: auto;
+  padding: 10px;
+}
+
+.filter-section select {
+  padding: 5px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  color: #055695;
+}

@@ -29,7 +29,7 @@
     <!-- Dashboard View -->
     <div *ngIf="currentView === 'dashboard'">
       <h1>Dashboard</h1>
-      <p class="welcome">Welcome back, Ronald</p>
+      <p class="welcome">Welcome {{ adminName }}</p>
 
       <!-- Stats Cards -->
       <div class="stats">
@@ -45,7 +45,7 @@
         <div class="charts">
           <div class="chart-card">
             <h3>Number of Candidates</h3>
-            <canvas id="candidatesChart" width="400" height="200"></canvas>
+            <canvas #candidatesChart width="400" height="200"></canvas>
             <div class="chart-legend">
               <div class="legend-item"><span class="legend-dot females"></span> Females: {{ candidatesByGender.Females }}</div>
               <div class="legend-item"><span class="legend-dot males"></span> Males: {{ candidatesByGender.Males }}</div>
@@ -53,7 +53,7 @@
           </div>
           <div class="chart-card">
             <h3>Number of Registered</h3>
-            <canvas id="registeredChart" width="400" height="200"></canvas>
+            <canvas #registeredChart width="400" height="200"></canvas>
             <div class="chart-legend">
               <div class="legend-item" *ngFor="let country of registeredByCountry | keyvalue">
                 <span [ngClass]="['legend-dot', country.key.toLowerCase()]"></span> {{ country.key }}: {{ country.value }}
@@ -110,7 +110,7 @@
           </thead>
           <tbody>
           <tr *ngFor="let candidate of candidates">
-            <td>{{ candidate.name }}</td>
+            <td>{{ candidate.firstName }} {{ candidate.lastName }}</td>
             <td>{{ candidate.email }}</td>
             <td>
               <button class="btn view-btn" (click)="viewCandidateProfile(candidate)">View Profile</button>
@@ -131,17 +131,17 @@
         </div>
         <div class="profile-card">
           <div class="profile-header-content">
-            <div class="profile-name">{{ selectedCandidate.name }}</div>
+            <div class="profile-name">{{ selectedCandidate.firstName }} {{ selectedCandidate.lastName }}</div>
           </div>
           <div class="profile-details">
             <div class="details-left">
               <div class="detail-item">
                 <label>Date Of Birth</label>
-                <p>{{ selectedCandidate.dob }}</p>
+                <p>{{ selectedCandidate.dateOfBirth | date:'MMMM d, y' }}</p>
               </div>
               <div class="detail-item">
                 <label>Phone Number</label>
-                <p>{{ selectedCandidate.phone }}</p>
+                <p>{{ selectedCandidate.phoneNumber }}</p>
               </div>
               <div class="detail-item">
                 <label>Email</label>
@@ -171,7 +171,7 @@
               </div>
               <div class="detail-item">
                 <label>Years of Experience</label>
-                <p>{{ selectedCandidate.yearsOfExperience }}</p>
+                <p>{{ selectedCandidate.experience }}</p>
               </div>
               <div class="detail-item">
                 <label>Soft Skills</label>
@@ -179,7 +179,7 @@
               </div>
               <div class="detail-item">
                 <label>Technical Skills</label>
-                <p>{{ selectedCandidate.technicalSkills }}</p>
+                <p>{{ selectedCandidate.techSkills }}</p>
               </div>
             </div>
           </div>
@@ -211,8 +211,8 @@
           </thead>
           <tbody>
           <tr *ngFor="let recruiter of recruiters">
-            <td>{{ recruiter.name }}</td>
-            <td>{{ recruiter.companyName }}</td>
+            <td>{{ recruiter.firstName }} {{ recruiter.lastName }}</td>
+            <td>{{ recruiter.company.name }}</td> <!-- Remplacé ?. par . -->
             <td>{{ recruiter.email }}</td>
             <td>
               <button class="btn view-btn" (click)="viewRecruiterProfile(recruiter)">View Profile</button>
@@ -223,7 +223,7 @@
         </table>
       </div>
       <!-- Recruiter Profile View -->
-      <div class="profile-view" *ngIf="currentView === 'recruiters' && selectedRecruiter">
+      <div class="profile-view" *ngIf="selectedRecruiter">
         <div class="profile-header">
           <button class="btn back-btn" (click)="backToListRecruiter()">
             <i class="bi bi-arrow-left"></i> Back
@@ -243,7 +243,7 @@
         </div>
         <div class="profile-card">
           <div class="profile-header-content">
-            <div class="profile-name">{{ selectedRecruiter.name }}</div>
+            <div class="profile-name">{{ selectedRecruiter.firstName }} {{ selectedRecruiter.lastName }}</div>
           </div>
           <div class="profile-details">
             <div class="details-left">
@@ -253,48 +253,56 @@
               </div>
               <div class="detail-item">
                 <label>Company Name</label>
-                <p>{{ selectedRecruiter.companyName }}</p>
+                <p>{{ selectedRecruiter.company.name }}</p>
               </div>
               <div class="detail-item">
                 <label>Company Size</label>
-                <p>{{ selectedRecruiter.companySize }}</p>
+                <p>{{ selectedRecruiter.company.size }} employees</p>
               </div>
               <div class="detail-item">
                 <label>Country</label>
-                <p>{{ selectedRecruiter.country }}</p>
+                <p>{{ selectedRecruiter.company.country }}</p>
               </div>
               <div class="detail-item">
                 <label>City</label>
-                <p>{{ selectedRecruiter.city }}</p>
+                <p>{{ selectedRecruiter.company.city }}</p>
+              </div>
+              <div class="detail-item">
+                <label>Address Line 1</label>
+                <p>{{ selectedRecruiter.company.addressLine1 }}</p>
               </div>
             </div>
             <div class="details-right">
               <div class="detail-item">
+                <label>Address Line 2</label>
+                <p>{{ selectedRecruiter.company.addressLine2 }}</p>
+              </div>
+              <div class="detail-item">
                 <label>Phone Number 1</label>
-                <p>{{ selectedRecruiter.phoneNumber1 }}</p>
+                <p>{{ selectedRecruiter.company.phoneNumber1 }}</p>
               </div>
               <div class="detail-item">
                 <label>Phone Number 2</label>
-                <p>{{ selectedRecruiter.phoneNumber2 }}</p>
-              </div>
-              <div class="detail-item">
-                <label>Company Website</label>
-                <p>{{ selectedRecruiter.companyWebsite }}</p>
+                <p>{{ selectedRecruiter.company.phoneNumber2 }}</p>
               </div>
               <div class="detail-item">
                 <label>Field</label>
-                <p>{{ selectedRecruiter.field }}</p>
+                <p>{{ selectedRecruiter.company.field }}</p>
               </div>
               <div class="detail-item">
-                <label>Company Description</label>
-                <p>{{ selectedRecruiter.companyDescription }}</p>
+                <label>Website</label>
+                <p><a href="{{ selectedRecruiter.company.website }}" target="_blank">{{ selectedRecruiter.company.website }}</a></p> <!-- Remplacé ?. par . -->
+              </div>
+              <div class="detail-item">
+                <label>Description</label>
+                <p>{{ selectedRecruiter.company.description }}</p>
               </div>
             </div>
           </div>
-        </div>
-        <!-- Delete Button -->
-        <div class="delete-recruiter">
-          <button class="btn delete-recruiter" (click)="deleteRecruiter(selectedRecruiter)">Delete</button>
+          <!-- Delete Button -->
+          <div class="delete-recruiter">
+            <button class="btn delete-recruiter" (click)="deleteRecruiter(selectedRecruiter)">Delete</button>
+          </div>
         </div>
       </div>
     </div>
@@ -304,6 +312,14 @@
         <div class="nav-home">
           <div class="home-icon">
             <i class="bi bi-house-fill" (click)="setView('dashboard')"></i>
+          </div>
+          <div class="filter-section">
+          <select>
+            <option value="">All Types</option>
+            <option value="Full-time">Full-time</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Internship">Internship</option>
+          </select>
           </div>
         </div>
         <h1>Offers</h1>

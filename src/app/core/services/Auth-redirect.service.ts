@@ -2,6 +2,7 @@
 import {inject, Injectable} from '@angular/core';
 import { Router } from '@angular/router';
 import Keycloak from 'keycloak-js';
+import {UserModel} from '../../models/idm/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -39,6 +40,21 @@ debugger;
     this.keycloak.logout({
       redirectUri: window.location.origin + '/login'
     });
+  }
+  // Méthode pour récupérer les informations de l'utilisateur
+  getUserInfo(): UserModel | null {
+    const tokenParsed = this.keycloak.tokenParsed;
+    if (!tokenParsed) return null;
+
+    return {
+      id: tokenParsed['sub'] || '',
+      email: tokenParsed['email'] || '',
+      firstName: tokenParsed['given_name'] || '',
+      lastName: tokenParsed['family_name'] || '',
+      password: '',
+      keycloakId: tokenParsed['sub'] || '',
+      username: tokenParsed['preferred_username'] || ''
+    };
   }
 
 }

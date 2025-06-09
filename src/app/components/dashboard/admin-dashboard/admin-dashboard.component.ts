@@ -1,121 +1,35 @@
-import { Component, AfterViewInit } from '@angular/core';
-import Chart from 'chart.js/auto';
+import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Chart, registerables } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {AdminDashboardService} from '../../../core/services/admin-dashboard.service';
+import { AdminDashboardService } from '../../../core/services/admin-dashboard.service';
 import { AuthRedirectService } from '../../../core/services/Auth-redirect.service';
+import { UserModel } from '../../../models/idm/user.model';
+import { CandidateModel } from '../../../models/idm/candidate.model';
+import { RecruiterModel } from '../../../models/idm/recruiter.model';
 
+// Component Metadata
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './admin-dashboard.component.html',
   styleUrls: ['./admin-dashboard.component.css']
 })
 export class AdminDashboardComponent implements AfterViewInit {
 
+  // Job Listings
   jobs = [
-    {
-      title: 'UI/UX Designer',
-      type: 'Job',
-      applications: 125,
-      status: 'Active',
-      statusClass: 'active'
-    },
-    {
-      title: 'Full Stack Dev',
-      type: 'Remote',
-      applications: 100,
-      status: 'Expired',
-      statusClass: 'expired'
-    },
-    {title: 'DevOps', type: 'Internship', applications: 5, status: 'Active', statusClass: 'active'},
-    {
-      title: 'Android Dev',
-      type: 'Job',
-      applications: 45,
-      status: 'Active',
-      statusClass: 'active'
-    },
-    {
-      title: 'iOS Developer',
-      type: 'Internship',
-      applications: 36,
-      status: 'Expired',
-      statusClass: 'expired'
-    }
+    { title: 'UI/UX Designer', type: 'Job', applications: 125, status: 'Active', statusClass: 'active' },
+    { title: 'Full Stack Dev', type: 'Remote', applications: 100, status: 'Expired', statusClass: 'expired' },
+    { title: 'DevOps', type: 'Internship', applications: 5, status: 'Active', statusClass: 'active' },
+    { title: 'Android Dev', type: 'Job', applications: 45, status: 'Active', statusClass: 'active' },
+    { title: 'iOS Developer', type: 'Internship', applications: 36, status: 'Expired', statusClass: 'expired' }
   ];
 
 
-  // Liste simulée de candidats
-  candidates = [
-    {
-      name: 'Darlene Robertson',
-      dob: 'March 15, 1992',
-      phone: '+1 (415) 678-9012',
-      email: 'darlene.robertson@gmail.com',
-      country: 'United States',
-      city: 'San Francisco',
-      address: '123 Creative Ave, Apt 45, San Francisco, CA 94103',
-      diploma: "Bachelor's Degree in Graphic Design",
-      specialization: 'UI/UX Design, User Research, Prototyping, 7 Years',
-      yearsOfExperience: 7,
-      softSkills: 'Communication, Teamwork, Problem Solving',
-      technicalSkills: 'Figma, Adobe XD, HTML, CSS, JavaScript'
-
-    },
-    {
-      name: 'John Doe',
-      dob: 'April 20, 1988',
-      phone: '+1 (415) 123-4567',
-      email: 'john.doe@example.com',
-      country: 'United States',
-      city: 'Los Angeles',
-      address: '456 Tech St, Apt 12, Los Angeles, CA 90001',
-      diploma: "Master's in Computer Science",
-      specialization: 'Software Development, 5 Years',
-      yearsOfExperience: 3,
-      softSkills: 'Communication and Problem Solving',
-      technicalSkills: 'Figma, Adobe XD, HTML, CSS, JavaScript'
-    }
-  ];
-  // Liste simulée de recruteurs
-  recruiters = [
-    {
-      name: 'John Smith',
-      email: 'john.smith@company.com',
-      companyName: 'TechCorp Inc.',
-      companySize: '500-1000 employees',
-      country: 'United States',
-      city: 'New York',
-      addressLine1: '456 Business Rd',
-      addressLine2: 'Suite 200',
-      phoneNumber1: '+1 (212) 555-1234',
-      phoneNumber2: '+1 (212) 555-5678',
-      companyWebsite: 'https://techcorp.com',
-      field: 'Technology',
-      companyDescription: 'TechCorp Inc. is a leading technology firm specializing in software development and IT solutions, with a focus on innovation and sustainability.'
-    },
-    {
-      name: 'Chaima Zidi',
-      email: 'chaima.zidi@company.com',
-      companyName: 'ASM.',
-      companySize: '500-1000 employees',
-      country: 'Tunisia',
-      city: 'Sfax',
-      addressLine1: 'Centre Ville Sfax',
-      addressLine2: 'Avenue Habib Bourguiba Tunis',
-      phoneNumber1: '+1 (216) 93-124-968',
-      phoneNumber2: '+1 (212) 21-012-939',
-      companyWebsite: 'https://ASM.com',
-      field: 'IT',
-    },
-  ];
-  // Liste des offres
+  // Job Offers
   Offers = [
     {
       title: 'Software Engineer',
@@ -130,17 +44,14 @@ export class AdminDashboardComponent implements AfterViewInit {
       yearsOfExperience: 7,
       softSkills: 'Communication, Teamwork, Problem Solving',
       technicalSkills: 'Figma.Adobe XD. HTML, CSS. JavaScript',
-      description: 'SynapseX Labs is looking for an innovative and highly skilled' +
-        ' AI & Machine Learning Engineer to join our cutting-edge research and development team...',
-      duties: 'Design, develop, and deploy AI/ML models for predictive analytics and automation.Work with deep learning frameworks (TensorFlow, PyTorch) for NLP ' +
-        'and computer vision applications',
-      qualifications: 'Engineering degree or Master’s in Computer Science, Artificial Intelligence, ' +
-        'Data Science, or a related field' +
-        '.Strong programming skills in Python (NumPy, Pandas, Scikit-learn, TensorFlow, PyTorch)' +
-        '.Experience with NLP, deep learning, and computer vision technologies'
-
-    },
+      description: 'SynapseX Labs is looking for an innovative and highly skilled AI & Machine Learning Engineer to join our cutting-edge research and development team...',
+      duties: 'Design, develop, and deploy AI/ML models for predictive analytics and automation. Work with deep learning frameworks (TensorFlow, PyTorch) for NLP and computer vision applications',
+      qualifications: 'Engineering degree or Master’s in Computer Science, Artificial Intelligence, Data Science, or a related field. Strong programming skills in Python (NumPy, Pandas, Scikit-learn, TensorFlow, PyTorch). Experience with NLP, deep learning, and computer vision technologies'
+    }
   ];
+
+
+  // Component Properties
 
   settingsForm: FormGroup;
   successMessage: string | null = null;
@@ -150,12 +61,23 @@ export class AdminDashboardComponent implements AfterViewInit {
   stats: any[] = [];
   candidatesByGender: any = { Females: 0, Males: 0 };
   registeredByCountry: { [key: string]: number } = {};
-  selectedCandidate: any = null;
-  selectedRecruiter: any = null;
   selectedOffer: any = null;
-  currentCandidateIndex: number = 0;
-  currentRecruiterIndex: number = 0;
   currentOfferIndex: number = 0;
+  adminName: string = 'Admin';
+  candidates: CandidateModel[] = [];
+  selectedCandidate: CandidateModel | null = null;
+  currentCandidateIndex: number = 0;
+  recruiters: RecruiterModel[] = [];
+  selectedRecruiter: RecruiterModel | null = null;
+  currentRecruiterIndex: number = 0;
+
+  @ViewChild('candidatesChart') candidatesCanvas!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('registeredChart') registeredCanvas!: ElementRef<HTMLCanvasElement>;
+  private candidatesChart: Chart | null = null;
+  private registeredChart: Chart | null = null;
+
+
+  //Constructor and Initialization
 
   constructor(
     private fb: FormBuilder,
@@ -163,12 +85,19 @@ export class AdminDashboardComponent implements AfterViewInit {
     private adminDashboardService: AdminDashboardService,
     private authRedirectService: AuthRedirectService
   ) {
-    // Formulaire pour les paramètres
+    const userInfo = this.authRedirectService.getUserInfo();
+    console.log('User Info:', userInfo);
+    this.updateAdminName(userInfo);
     this.settingsForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.minLength(6)]],
       confirmPassword: ['']
-    }, {validators: this.passwordMatchValidator});
+    }, { validators: this.passwordMatchValidator });
+    if (this.currentView === 'candidates') {
+      this.loadCandidates();
+    } else if (this.currentView === 'recruiters') {
+      this.loadRecruiters();
+    }
   }
 
   ngAfterViewInit(): void {
@@ -177,12 +106,37 @@ export class AdminDashboardComponent implements AfterViewInit {
     }
   }
 
+  //Data Loading Methods
+
+  loadCandidates(): void {
+    this.adminDashboardService.getAllCandidates().subscribe({
+      next: (data: CandidateModel[]) => {
+        this.candidates = data.map(candidate => ({
+          ...candidate,
+          dateOfBirth: candidate.dateOfBirth ? new Date(candidate.dateOfBirth) : null
+        }));
+      },
+      error: (error) => {
+        console.error('Error fetching candidates:', error);
+      }
+    });
+  }
+
+  loadRecruiters(): void {
+    this.adminDashboardService.getAllRecruiters().subscribe({
+      next: (data: RecruiterModel[]) => {
+        this.recruiters = data;
+      },
+      error: (error) => {
+        console.error('Error fetching recruiters:', error);
+      }
+    });
+  }
 
   loadDashboardStats(): void {
     this.adminDashboardService.getDashboardStats().subscribe({
       next: (data) => {
-        console.log('Fetched data:', data); // Debug: Log the response
-        // Map backend data to stats array for cards
+        console.log('Fetched data:', data);
         this.stats = [
           { title: 'Job Posts', value: data.totalJobOffers || 0 },
           { title: 'Internship Posts', value: data.totalInternshipOffers || 0 },
@@ -190,19 +144,12 @@ export class AdminDashboardComponent implements AfterViewInit {
           { title: 'Total Candidates', value: data.totalCandidates || 0 },
           { title: 'Total Recruiters', value: data.totalRecruiters || 0 }
         ];
-
-        // Update candidatesByGender for the chart
         this.candidatesByGender = data.candidatesByGender || { Females: 0, Males: 0 };
-
-        // Update registeredByCountry for the chart
         this.registeredByCountry = data.registeredByCountry || {};
-
-        // Initialize charts after data is loaded
         this.initializeCharts();
       },
       error: (error) => {
         console.error('Error fetching dashboard stats:', error);
-        // Fallback data in case of error
         this.stats = [
           { title: 'Job Posts', value: 0 },
           { title: 'Internship Posts', value: 0 },
@@ -212,45 +159,42 @@ export class AdminDashboardComponent implements AfterViewInit {
         ];
         this.candidatesByGender = { Females: 0, Males: 0 };
         this.registeredByCountry = {};
-        this.initializeCharts(); // Still initialize charts with fallback data
+        this.initializeCharts();
       }
     });
   }
-  private candidatesChart: Chart | null = null;
-  private registeredChart: Chart | null = null;
+
+
+  //Chart Initialization
 
   initializeCharts(): void {
     if (this.candidatesChart) this.candidatesChart.destroy();
     if (this.registeredChart) this.registeredChart.destroy();
 
-    setTimeout(() => {
-      const candidatesCanvas = document.getElementById('candidatesChart') as HTMLCanvasElement;
-      if (candidatesCanvas) {
-        this.candidatesChart = new Chart(candidatesCanvas, {
-          type: 'bar',
-          data: {
-            labels: ['Females', 'Males'],
-            datasets: [{
-              label: 'Number of Candidates',
-              data: [this.candidatesByGender.Females, this.candidatesByGender.Males],
-              backgroundColor: ['#FF6384', '#36A2EB'],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            scales: { y: { beginAtZero: true } },
-            plugins: { legend: { display: true } }
-          }
-        });
-      } else {
-        console.error('candidatesChart canvas not found');
-      }
+    if (this.candidatesCanvas && this.candidatesCanvas.nativeElement) {
+      this.candidatesChart = new Chart(this.candidatesCanvas.nativeElement, {
+        type: 'bar',
+        data: {
+          labels: ['Females', 'Males'],
+          datasets: [{
+            label: 'Number of Candidates',
+            data: [this.candidatesByGender.Females, this.candidatesByGender.Males],
+            backgroundColor: ['#FF6384', '#36A2EB'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          scales: { y: { beginAtZero: true } },
+          plugins: { legend: { display: true } }
+        }
+      });
+    }
 
-      const registeredCanvas = document.getElementById('registeredChart') as HTMLCanvasElement;
+    if (this.registeredCanvas && this.registeredCanvas.nativeElement) {
       const countryLabels = Object.keys(this.registeredByCountry);
       const countryData = Object.values(this.registeredByCountry);
-      if (registeredCanvas && countryLabels.length > 0) {
-        this.registeredChart = new Chart(registeredCanvas, {
+      if (countryLabels.length > 0) {
+        this.registeredChart = new Chart(this.registeredCanvas.nativeElement, {
           type: 'bar',
           data: {
             labels: countryLabels,
@@ -266,22 +210,21 @@ export class AdminDashboardComponent implements AfterViewInit {
             plugins: { legend: { display: true } }
           }
         });
-      } else {
-        console.warn('No data or registeredChart canvas not found');
       }
-    }, 100); // Increased delay for DOM readiness
-  }
-  /*Gestion de la navigation dans la barre latérale
-  setView(view: string): void {
-    this.currentView = view;
-    if (view === 'dashboard') {
-      setTimeout(() => this.initializeCharts(), 0);
     }
-  }*/
+  }
+
+
+  //Navigation and Actions
+
   setView(view: string): void {
     this.currentView = view;
     if (view === 'dashboard') {
-      this.loadDashboardStats(); // Ensure data is reloaded when switching to dashboard
+      this.loadDashboardStats();
+    } else if (view === 'candidates') {
+      this.loadCandidates();
+    }else if (view === 'recruiters') {
+      this.loadRecruiters();
     }
   }
 
@@ -289,7 +232,7 @@ export class AdminDashboardComponent implements AfterViewInit {
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : {mismatch: true};
+    return password === confirmPassword ? null : { mismatch: true };
   }
 
   onSubmitSettings(): void {
@@ -314,22 +257,77 @@ export class AdminDashboardComponent implements AfterViewInit {
       this.logoutMessage = null;
     }, 3000);
   }
-  // Afficher le profil
-  viewCandidateProfile(candidate: any): void {
+
+  // Afficher le profil d'un candidat
+  viewCandidateProfile(candidate: CandidateModel): void {
     this.selectedCandidate = candidate;
     this.currentCandidateIndex = this.candidates.indexOf(candidate);
   }
-  viewRecruiterProfile(recruiter: any): void {
+
+  // Supprimer un candidat via l'API backend
+  deleteCandidate(candidate: CandidateModel): void {
+    if (candidate.id) {
+      this.adminDashboardService.deleteCandidate(candidate.id).subscribe({
+        next: (response) => {
+          console.log('Candidate deleted:', response);
+          this.candidates = this.candidates.filter(c => c.id !== candidate.id);
+          if (this.selectedCandidate && this.selectedCandidate.id === candidate.id) {
+            this.currentCandidateIndex = Math.min(this.currentCandidateIndex, this.candidates.length - 1);
+            this.selectedCandidate = this.candidates.length > 0 ? this.candidates[this.currentCandidateIndex] : null;
+          }
+          if (this.candidates.length === 0) {
+            this.backToListCandidate();
+          }
+          alert('Candidate deleted successfully!');
+        },
+        error: (error) => {
+          console.error('Error deleting candidate:', error);
+        }
+      });
+    }
+  }
+
+  // Afficher le profil d'un recruteur
+  viewRecruiterProfile(recruiter: RecruiterModel): void {
     this.selectedRecruiter = recruiter;
     this.currentRecruiterIndex = this.recruiters.indexOf(recruiter);
   }
-  viewOffer(offer: any): void {
-    this.selectedOffer= offer;
-    this.currentOfferIndex = this.Offers.indexOf(offer);
+
+  // Supprimer un recruteur via l'API backend
+  deleteRecruiter(recruiter: RecruiterModel): void {
+    if (recruiter.id) {
+      this.adminDashboardService.deleteRecruiter(recruiter.id).subscribe({
+        next: (response) => {
+          console.log('Recruiter deleted:', response);
+          this.recruiters = this.recruiters.filter(r => r.id !== recruiter.id);
+          if (this.selectedRecruiter && this.selectedRecruiter.id === recruiter.id) {
+            this.currentRecruiterIndex = Math.min(this.currentRecruiterIndex, this.recruiters.length - 1);
+            this.selectedRecruiter = this.recruiters.length > 0 ? this.recruiters[this.currentRecruiterIndex] : null;
+          }
+          if (this.recruiters.length === 0) {
+            this.backToListRecruiter();
+          }
+          alert('Recruiter deleted successfully!');
+        },
+        error: (error) => {
+          console.error('Error deleting recruiter:', error);
+          alert('Failed to delete recruiter: ' + (error.error || 'Unknown error'));
+        }
+      });
+    }
   }
 
-
-
+  // Méthode pour mettre à jour le nom de l'admin
+  private updateAdminName(userInfo: UserModel | null): void {
+    if (userInfo) {
+      this.adminName = `${userInfo.firstName || ''} ${userInfo.lastName || ''}`.trim() || userInfo.username || 'Admin';
+    }
+    this.settingsForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.minLength(6)]],
+      confirmPassword: ['']
+    }, { validators: this.passwordMatchValidator });
+  }
 
   // Retourner à la liste des candidats
   backToListCandidate(): void {
@@ -353,13 +351,13 @@ export class AdminDashboardComponent implements AfterViewInit {
       this.selectedCandidate = this.candidates[this.currentCandidateIndex];
     }
   }
+
   previousRecruiterProfile(): void {
     if (this.currentRecruiterIndex > 0) {
       this.currentRecruiterIndex--;
       this.selectedRecruiter = this.recruiters[this.currentRecruiterIndex];
     }
   }
-
 
   // Navigation suivante
   nextCandidateProfile(): void {
@@ -368,6 +366,7 @@ export class AdminDashboardComponent implements AfterViewInit {
       this.selectedCandidate = this.candidates[this.currentCandidateIndex];
     }
   }
+
   nextRecruiterProfile(): void {
     if (this.currentRecruiterIndex < this.recruiters.length - 1) {
       this.currentRecruiterIndex++;
@@ -375,35 +374,6 @@ export class AdminDashboardComponent implements AfterViewInit {
     }
   }
 
-
-  // Supprimer un candidat
-  deleteCandidate(candidate: any): void {
-    const index = this.candidates.indexOf(candidate);
-    if (index !== -1) {
-      this.candidates.splice(index, 1);
-      if (this.selectedCandidate && this.selectedCandidate.name === candidate.name) {
-        this.currentCandidateIndex = Math.min(this.currentCandidateIndex, this.candidates.length - 1);
-        this.selectedCandidate = this.candidates.length > 0 ? this.candidates[this.currentCandidateIndex] : null;
-      }
-      if (this.candidates.length === 0) {
-        this.backToListCandidate();
-      }
-    }
-  }
-  // Supprimer un recruteur
-  deleteRecruiter(recruiter: any): void {
-    const index = this.recruiters.indexOf(recruiter);
-    if (index !== -1) {
-      this.recruiters.splice(index, 1);
-      if (this.selectedRecruiter && this.selectedRecruiter.name === recruiter.name) {
-        this.currentRecruiterIndex = Math.min(this.currentRecruiterIndex, this.recruiters.length - 1);
-        this.selectedRecruiter = this.recruiters.length > 0 ? this.recruiters[this.currentRecruiterIndex] : null;
-      }
-      if (this.recruiters.length === 0) {
-        this.backToListRecruiter();
-      }
-    }
-  }
 
   // Supprimer une offre
   deleteOffer(offer: any): void {
@@ -419,6 +389,9 @@ export class AdminDashboardComponent implements AfterViewInit {
       }
     }
   }
+  viewOffer(offer: any): void {
+    this.selectedOffer= offer;
+    this.currentOfferIndex = this.Offers.indexOf(offer);
+  }
 
 }
-

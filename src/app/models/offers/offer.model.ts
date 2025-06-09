@@ -12,6 +12,7 @@ export interface OfferModel {
   tools: string;
   workMode: string;
   recruiter: RecruiterModel;
+  status: string;
 
 
 }

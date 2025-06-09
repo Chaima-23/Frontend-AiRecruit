@@ -3,15 +3,15 @@ import { RecruiterModel } from '../idm/recruiter.model';
 export interface CompanyModel {
   id: string;
   name: string;
-  address: string;
+  size: number;
+  addressLine1: string;
+  addressLine2: string;
   city: string;
   country: string;
   description: string;
   field: string;
-  phoneNumber: string;
-  size: number;
+  phoneNumber1: string;
+  phoneNumber2: string;
   website: string;
-  recruiters: RecruiterModel[];
-
-
+  recruiter: RecruiterModel;
 }
