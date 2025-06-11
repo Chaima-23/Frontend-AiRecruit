@@ -10,7 +10,8 @@ export class RecruiterService {
 
   constructor(private http: HttpClient) {}
 
-  registerRecruiter(recruiterData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, recruiterData);
-  }
-}
+  registerRecruiter(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, payload, {
+      responseType: 'text' as 'json'
+    });
+}}

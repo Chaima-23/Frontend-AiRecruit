@@ -39,30 +39,40 @@
         </div>
       </div>
 
-      <!-- Charts and Job Posts Row -->
       <div class="charts-and-posts">
-        <!-- Charts Section -->
         <div class="charts">
+
+          <!-- Number of Candidates Chart -->
           <div class="chart-card">
             <h3>Number of Candidates</h3>
             <canvas #candidatesChart width="400" height="200"></canvas>
             <div class="chart-legend">
-              <div class="legend-item"><span class="legend-dot females"></span> Females: {{ candidatesByGender.Females }}</div>
-              <div class="legend-item"><span class="legend-dot males"></span> Males: {{ candidatesByGender.Males }}</div>
+              <div class="legend-item">
+                <span class="legend-dot females"></span>
+                Females: {{ candidatesByGender.Females }}
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot males"></span>
+                Males: {{ candidatesByGender.Males }}
+              </div>
             </div>
           </div>
+
+          <!-- Number of Registered Chart -->
           <div class="chart-card">
             <h3>Number of Registered</h3>
             <canvas #registeredChart width="400" height="200"></canvas>
             <div class="chart-legend">
-              <div class="legend-item" *ngFor="let country of registeredByCountry | keyvalue">
-                <span [ngClass]="['legend-dot', country.key.toLowerCase()]"></span> {{ country.key }}: {{ country.value }}
+              <div class="legend-item" *ngFor="let item of registeredLegend">
+                <span class="legend-dot" [style.backgroundColor]="item.color"></span>
+                {{ item.label }}: {{ item.value }}
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Recent Job Posts Table -->
+
+      <!-- Recent Job Posts Table -->
         <div class="job-posts">
           <h3>Recent Job Posts</h3>
           <table>
@@ -171,7 +181,7 @@
               </div>
               <div class="detail-item">
                 <label>Years of Experience</label>
-                <p>{{ selectedCandidate.experience }}</p>
+                <p>{{ selectedCandidate.yearsOfExperience }}</p>
               </div>
               <div class="detail-item">
                 <label>Soft Skills</label>
@@ -179,7 +189,7 @@
               </div>
               <div class="detail-item">
                 <label>Technical Skills</label>
-                <p>{{ selectedCandidate.techSkills }}</p>
+                <p>{{ selectedCandidate.technicalSkills }}</p>
               </div>
             </div>
           </div>
@@ -212,7 +222,7 @@
           <tbody>
           <tr *ngFor="let recruiter of recruiters">
             <td>{{ recruiter.firstName }} {{ recruiter.lastName }}</td>
-            <td>{{ recruiter.company.name }}</td> <!-- Remplacé ?. par . -->
+            <td>{{ recruiter.company.name }}</td>
             <td>{{ recruiter.email }}</td>
             <td>
               <button class="btn view-btn" (click)="viewRecruiterProfile(recruiter)">View Profile</button>
@@ -422,7 +432,6 @@
 
       <div class="settings-form-card">
         <form [formGroup]="settingsForm" (ngSubmit)="onSubmitSettings()">
-
           <div class="form-group">
             <label for="email">Email</label>
             <input type="email" id="email" formControlName="email" placeholder="Enter your email" />
@@ -457,7 +466,7 @@
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
       </div>
     </div>
-  </div>
 
 </div>
 
+</div>

@@ -17,7 +17,7 @@
     <!-- Personal View -->
     <div *ngIf="currentView === 'personal'">
       <div class="welcome-message">
-        <h2>Welcome back {{ personalForm.get('firstName')?.value || 'Candidate' }}</h2>
+        <h2>Welcome back {{ personalForm.get('firstName')?.value || '' }} {{ personalForm.get('lastName')?.value || 'Candidate' }}</h2>
       </div>
       <div class="settings-form-card">
         <div class="settings-header">

@@ -85,6 +85,7 @@ export class AdminDashboardComponent implements AfterViewInit {
     private adminDashboardService: AdminDashboardService,
     private authRedirectService: AuthRedirectService
   ) {
+    Chart.register(...registerables);
     const userInfo = this.authRedirectService.getUserInfo();
     console.log('User Info:', userInfo);
     this.updateAdminName(userInfo);
@@ -113,8 +114,13 @@ export class AdminDashboardComponent implements AfterViewInit {
       next: (data: CandidateModel[]) => {
         this.candidates = data.map(candidate => ({
           ...candidate,
-          dateOfBirth: candidate.dateOfBirth ? new Date(candidate.dateOfBirth) : null
+          dateOfBirth: candidate.dateOfBirth ? new Date(candidate.dateOfBirth) : null,
+          experience: candidate.yearsOfExperience || 0,
+          techSkills: candidate.technicalSkills || ''
         }));
+        if (this.candidates.length > 0 && this.currentCandidateIndex >= 0) {
+          this.selectedCandidate = this.candidates[this.currentCandidateIndex];
+        }
       },
       error: (error) => {
         console.error('Error fetching candidates:', error);
@@ -144,8 +150,10 @@ export class AdminDashboardComponent implements AfterViewInit {
           { title: 'Total Candidates', value: data.totalCandidates || 0 },
           { title: 'Total Recruiters', value: data.totalRecruiters || 0 }
         ];
-        this.candidatesByGender = data.candidatesByGender || { Females: 0, Males: 0 };
-        this.registeredByCountry = data.registeredByCountry || {};
+        this.candidatesByGender = data.candidatesByGender ? { ...data.candidatesByGender } : { Females: 0, Males: 0 }; // Conditional assignment
+        this.registeredByCountry = data.registeredByCountry ? { ...data.registeredByCountry } : {}; // Conditional assignment
+        console.log('Candidates by Gender:', this.candidatesByGender);
+        console.log('Registered by Country:', this.registeredByCountry);
         this.initializeCharts();
       },
       error: (error) => {
@@ -164,57 +172,76 @@ export class AdminDashboardComponent implements AfterViewInit {
     });
   }
 
-
-  //Chart Initialization
-
   initializeCharts(): void {
     if (this.candidatesChart) this.candidatesChart.destroy();
     if (this.registeredChart) this.registeredChart.destroy();
 
     if (this.candidatesCanvas && this.candidatesCanvas.nativeElement) {
       this.candidatesChart = new Chart(this.candidatesCanvas.nativeElement, {
-        type: 'bar',
+        type: 'doughnut',
         data: {
           labels: ['Females', 'Males'],
           datasets: [{
             label: 'Number of Candidates',
             data: [this.candidatesByGender.Females, this.candidatesByGender.Males],
             backgroundColor: ['#FF6384', '#36A2EB'],
-            borderWidth: 1
+            borderWidth: 0.5
           }]
         },
         options: {
-          scales: { y: { beginAtZero: true } },
-          plugins: { legend: { display: true } }
+          cutout: '70%',
+          plugins: { legend: { display: false } }
         }
       });
     }
 
     if (this.registeredCanvas && this.registeredCanvas.nativeElement) {
       const countryLabels = Object.keys(this.registeredByCountry);
-      const countryData = Object.values(this.registeredByCountry);
+      const countryData = countryLabels.map(country => this.registeredByCountry[country]);
+
+      this.registeredLegend = countryLabels.map((country, index) => ({
+        label: country,
+        value: this.registeredByCountry[country],
+        color: this.getColor(index)
+      }));
+
       if (countryLabels.length > 0) {
         this.registeredChart = new Chart(this.registeredCanvas.nativeElement, {
-          type: 'bar',
+          type: 'doughnut',
           data: {
             labels: countryLabels,
             datasets: [{
               label: 'Number of Registered',
               data: countryData,
-              backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
-              borderWidth: 1
+              backgroundColor: countryLabels.map((_, index) => this.getColor(index)),
+              borderWidth: 0.5
             }]
           },
           options: {
-            scales: { y: { beginAtZero: true } },
-            plugins: { legend: { display: true } }
+            cutout: '70%',
+            plugins: { legend: { display: false } }
           }
         });
       }
     }
   }
 
+  private colorPalette: string[] = [
+    '#40E0D0',
+    '#00CED1',
+    '#87CEEB',
+    '#ADD8E6',
+    '#B0E0E6',
+    '#AFEEEE',
+    '#6495ED',
+    '#191970'
+  ];
 
+  private getColor(index: number): string {
+    return this.colorPalette[index % this.colorPalette.length];
+  }
+
+  public registeredLegend: { label: string, value: number, color: string }[] = [];
   //Navigation and Actions
 
   setView(view: string): void {
@@ -225,25 +252,53 @@ export class AdminDashboardComponent implements AfterViewInit {
       this.loadCandidates();
     }else if (view === 'recruiters') {
       this.loadRecruiters();
+    }else if (view === 'settings') {
     }
   }
 
-  // Validation du formulaire des paramètres
+
+  // Form Initialization with Prefilled Email
+  initializeSettingsForm(userInfo: UserModel | null): void {
+    const email = userInfo?.email || '';
+    this.settingsForm = this.fb.group({
+      email: [email, [Validators.required, Validators.email]],
+      password: [''],
+      confirmPassword: ['']
+    }, { validators: this.passwordMatchValidator });
+  }
+
+  // Validation of Settings Form
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    return password === confirmPassword ? null : { mismatch: true };
+    return password === confirmPassword || !password ? null : { mismatch: true };
   }
 
   onSubmitSettings(): void {
     if (this.settingsForm.valid) {
-      console.log('Settings updated:', this.settingsForm.value);
-      this.successMessage = 'Settings updated successfully !';
-      this.errorMessage = null;
-      this.settingsForm.reset();
-      setTimeout(() => {
-        this.successMessage = null;
-      }, 3000);
+      const formData = this.settingsForm.value;
+      // Only send password if provided (optional per backend)
+      const userData = {
+        email: formData.email,
+        password: formData.password || undefined // Send undefined if empty
+      };
+
+      this.adminDashboardService.updateOwnAdmin(userData).subscribe({
+        next: (response) => {
+          console.log('Settings updated:', response);
+          this.successMessage = response.message;
+          this.errorMessage = null;
+          this.settingsForm.patchValue({ password: '', confirmPassword: '' }); // Clear password fields
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 3000);
+        },
+        error: (error) => {
+          console.error('Error updating settings:', error);
+          this.errorMessage = error.error?.message || 'Failed to update settings.';
+          this.successMessage = null;
+        }
+      });
     } else {
       this.errorMessage = 'Please fill out the form correctly.';
       this.successMessage = null;

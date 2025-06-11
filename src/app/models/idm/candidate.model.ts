@@ -4,12 +4,12 @@ export interface CandidateModel extends UserModel {
   address: string;
   dateOfBirth: Date| null;
   diploma: string;
-  experience: string;
+  yearsOfExperience: number;
   phoneNumber: string;
   country?: string;
   city?: string;
   softSkills: string;
-  techSkills: string;
+  technicalSkills: string;
   specialization: string;
 
 }

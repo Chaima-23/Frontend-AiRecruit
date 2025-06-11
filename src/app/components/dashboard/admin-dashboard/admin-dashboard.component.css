@@ -281,8 +281,8 @@ p {
 }
 
 .chart-card h3 {
-  font-size: 16px;
-  margin-bottom: 8px;
+  font-size: 23px;
+  margin-bottom: 35px;
   text-align: center;
   color: #055695;
   font-style: normal;
@@ -758,7 +758,7 @@ form {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s ease;
-  margin-left: 1120px;
+  margin-left: 840px;
   width: 140px;
   margin-top: 40px;
 }

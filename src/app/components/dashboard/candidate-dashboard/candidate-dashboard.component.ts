@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -33,11 +33,14 @@ export class CandidateDashboardComponent {
     private fb: FormBuilder,
     private authRedirectService: AuthRedirectService
   ) {
-    // Initialisation du formulaire "Personal"
+    // Récupérer les informations de l'utilisateur
+    const userInfo = this.authRedirectService.getUserInfo();
+
+    // Initialisation du formulaire "Personal" avec les données de l'utilisateur
     this.personalForm = this.fb.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
+      firstName: [userInfo?.firstName || '', Validators.required],
+      lastName: [userInfo?.lastName || '', Validators.required],
+      email: [userInfo?.email || '', [Validators.required, Validators.email]],
       dateOfBirth: ['', Validators.required],
       gender: ['', Validators.required],
       country: ['', Validators.required],
@@ -61,7 +64,6 @@ export class CandidateDashboardComponent {
   setView(view: string): void {
     this.currentView = view;
   }
-
   onSubmitPersonal() {
     if (this.personalForm.valid) {
       this.successMessage = 'Personal information saved successfully!';

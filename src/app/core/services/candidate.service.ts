@@ -10,7 +10,8 @@ export class CandidateService {
 
   constructor(private http: HttpClient) {}
 
-  registerCandidate(candidateData: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/register`, candidateData);
-  }
-}
+  registerCandidate(payload: any): Observable<any> {
+    return this.http.post(`${this.apiUrl}/register`, payload, {
+      responseType: 'text' as 'json'
+    });
+  }}

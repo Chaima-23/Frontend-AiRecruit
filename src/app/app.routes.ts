@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home/home.component';
 import { SignInComponent } from './components/auth/sign-in/sign-in.component';
-/*import { SignupCandidateComponent } from './components/auth/signup-candidate/signup-candidate.component';
-import {SignupRecruiterComponent} from './components/auth/signup-recruiter/signup-recruiter.component';*/
+import { SignupCandidateComponent } from './components/auth/signup-candidate/signup-candidate.component';
+import {SignupRecruiterComponent} from './components/auth/signup-recruiter/signup-recruiter.component';
 import { OffersListComponent } from './components/offers/offers-list/offers-list.component';
 import { OfferDetailsComponent } from './components/offers/offer-details/offer-details.component';
 import { ProfileViewComponent } from './components/profile/profile-view/profile-view.component';
@@ -30,8 +30,8 @@ export const routes: Routes = [
 
   // Authentification
   //{ path: 'auth/sign-in', component: SignInComponent },
- /* { path: 'auth/sign-up-candidate', component: SignupCandidateComponent },
-  { path: 'auth/sign-up-recruiter', component: SignupRecruiterComponent },*/
+  { path: 'auth/sign-up-candidate', component: SignupCandidateComponent },
+  { path: 'auth/sign-up-recruiter', component: SignupRecruiterComponent },
   {path: 'auth/get-started', component: GetStartedComponent },
   {path: 'auth/forgot-password', component: ForgotPasswordComponent },
 
