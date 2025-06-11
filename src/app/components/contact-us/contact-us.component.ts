@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import {NavbarComponent} from '../../shared/components/navbar/navbar.component';
-import {FooterComponent} from '../../shared/components/footer/footer.component';
-import {CorporateComponent} from '../../shared/components/corporate/corporate.component';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { CorporateComponent } from '../../shared/components/corporate/corporate.component';
 
 @Component({
   selector: 'app-contact-us',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     NavbarComponent,
     FooterComponent,
     CorporateComponent
@@ -18,21 +19,37 @@ import {CorporateComponent} from '../../shared/components/corporate/corporate.co
   templateUrl: './contact-us.component.html',
   styleUrls: ['./contact-us.component.css']
 })
-export class ContactUsComponent {
-  fullName: string = '';
-  email: string = '';
-  phone: string = '';
-  subject: string = '';
-  message: string = '';
+export class ContactUsComponent implements OnInit {
 
-  sendMessage() {
-    console.log('Message sent', {
-      fullName: this.fullName,
-      email: this.email,
-      phone: this.phone,
-      subject: this.subject,
-      message: this.message
+  contactForm!: FormGroup;
+
+  constructor(private fb: FormBuilder, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.contactForm = this.fb.group({
+      fullName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phoneNumber: [''],
+      subject: ['', Validators.required],
+      message: ['', Validators.required]
     });
+  }
 
+  submitForm() {
+    if (this.contactForm.invalid) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+
+    this.http.post('http://localhost:8081/api/contact', this.contactForm.value)
+      .subscribe({
+        next: () => {
+          alert("Message sent successfully");
+          this.contactForm.reset();
+        },
+        error: () => {
+          alert("Error sending");
+        }
+      });
   }
 }

@@ -306,7 +306,6 @@ export class AdminDashboardComponent implements AfterViewInit {
   }
 
   logout(): void {
-    this.logoutMessage = 'You are logged out from your space';
     this.authRedirectService.logout();
     setTimeout(() => {
       this.logoutMessage = null;

@@ -17,16 +17,16 @@
 <div class="contact-container">
   <div class="form-container">
     <h3>Send us a message</h3>
-    <form (ngSubmit)="sendMessage()">
+    <form [formGroup]="contactForm" (ngSubmit)="submitForm()">
       <div class="input-row">
-        <input type="text" placeholder="Full Name" [(ngModel)]="fullName" name="fullName" required>
-        <input type="email" placeholder="Email" [(ngModel)]="email" name="email" required>
+        <input type="text" formControlName="fullName" placeholder="Full Name" required>
+        <input type="email" placeholder="Email" formControlName="email" required>
       </div>
       <div class="input-row">
-        <input type="text" placeholder="Phone Number" [(ngModel)]="phone" name="phone">
-        <input type="text" placeholder="Subject" [(ngModel)]="subject" name="subject">
+        <input type="text" placeholder="Phone Number" formControlName="phoneNumber">
+        <input type="text" placeholder="Subject" formControlName="subject">
       </div>
-      <textarea placeholder="Message" [(ngModel)]="message" name="message" rows="5" required></textarea>
+      <textarea placeholder="Message" formControlName="message" rows="5" required></textarea>
       <button type="submit">
         <img src="../../../assets/icons/plane.png" alt="plane icon">
         SEND US MESSAGE

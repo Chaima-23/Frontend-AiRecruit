@@ -9,6 +9,7 @@
       <ul>
         <li [class.active]="currentView === 'dashboard'" (click)="setView('dashboard')"><i class="bi bi-house-door"></i> Dashboard</li>
         <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers</li>
+
       </ul>
     </div>
     <div class="bottom-nav">
@@ -313,6 +314,7 @@
         </div>
       </div>
     </div>
+
     <!-- Settings View -->
     <div *ngIf="currentView === 'settings'">
       <!-- Header -->

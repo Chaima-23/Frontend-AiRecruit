@@ -1,18 +1,18 @@
-import { RecruiterModel } from '../idm/recruiter.model';
 
 export interface OfferModel {
-  id: string;
-  deadline: Date;
+
+  deadline: string;
   description: string;
   dutiesAndResponsibilities: string;
   field: string;
-  location: string;
+  country: string;
+  city: string;
   minQualifications: string;
   salary: number;
   tools: string;
   workMode: string;
-  recruiter: RecruiterModel;
   status: string;
+  offerType: string;
 
 
 }

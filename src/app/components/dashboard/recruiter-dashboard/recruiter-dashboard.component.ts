@@ -8,9 +8,8 @@ import { AuthRedirectService } from '../../../core/services/Auth-redirect.servic
 import { FullTimeJobModel } from '../../../models/offers/full-time-job.model';
 import { PartTimeJobModel } from '../../../models/offers/part-time-job.model';
 import { InternshipOfferModel } from '../../../models/offers/internship-offer.model';
+import { RecruiterDashboardService } from '../../../core/services/recruiter-dashboard.service';
 import { OfferModel } from '../../../models/offers/offer.model';
-import { RecruiterModel } from '../../../models/idm/recruiter.model';
-import {RecruiterDashboardService} from '../../../core/services/recruiter-dashboard.service';
 
 @Component({
   selector: 'app-recruiter-dashboard',
@@ -32,13 +31,11 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   successMessage: string | null = null;
   errorMessage: string | null = null;
   selectedOffer: any = null;
-  isEditing: boolean = false; // Ajout de la variable isEditing
+  isEditing: boolean = false;
 
-  // Formulaires
   settingsForm: FormGroup;
   offerForm: FormGroup;
 
-  // Données pour les graphiques
   dailyViewsData = [
     { name: 'M', value: 10 },
     { name: 'Tu', value: 5 },
@@ -54,27 +51,9 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   };
 
   topScorers = [
-    {
-      name: 'Jane Cooper',
-      title: 'Cloud Engineer',
-      percentage: '99.99%',
-      rank: '1st',
-      date: '2025-05-01'
-    },
-    {
-      name: 'Eleanor Pena',
-      title: 'Cybersecurity Specialist',
-      percentage: '99.76%',
-      rank: '2nd',
-      date: '2025-05-01'
-    },
-    {
-      name: 'Devon Lane',
-      title: 'Web Developer',
-      percentage: '99.50%',
-      rank: '3rd',
-      date: '2025-05-01'
-    }
+    { name: 'Jane Cooper', title: 'Cloud Engineer', percentage: '99.99%', rank: '1st', date: '2025-05-01' },
+    { name: 'Eleanor Pena', title: 'Cybersecurity Specialist', percentage: '99.76%', rank: '2nd', date: '2025-05-01' },
+    { name: 'Devon Lane', title: 'Web Developer', percentage: '99.50%', rank: '3rd', date: '2025-05-01' }
   ];
 
   originalTopScorers = [...this.topScorers];
@@ -90,13 +69,14 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     }]
   };
 
+  offers: any[] = [];
+
   constructor(
     private router: Router,
     private fb: FormBuilder,
     private authRedirectService: AuthRedirectService,
-    private recruiterDashboardService:RecruiterDashboardService
+    private recruiterDashboardService: RecruiterDashboardService
   ) {
-    // Initialisation du formulaire des paramètres
     this.settingsForm = this.fb.group({
       recruiterName: [''],
       recruiterEmail: ['', [Validators.email]],
@@ -112,31 +92,40 @@ export class RecruiterDashboardComponent implements AfterViewInit {
       field: ['']
     });
 
-    // Initialisation du formulaire des offres
     this.offerForm = this.fb.group({
-      description: ['', Validators.required],
-      field: ['', Validators.required],
-      country: ['', Validators.required],
+      description: ['', [Validators.required, Validators.minLength(3)]],
+      field: ['', [Validators.required]],
+      country: ['', [Validators.required]],
       otherCountry: [''],
-      city: ['', Validators.required],
-      minQualifications: ['', Validators.required],
-      duties: ['', Validators.required],
-      tools: ['', Validators.required],
-      salary: ['', Validators.required],
-      deadline: ['', Validators.required],
-      workMode: ['', Validators.required],
-      status: ['Active', Validators.required],
-      offerType: ['', Validators.required],
+      city: ['', [Validators.required]],
+      minQualifications: ['', [Validators.required]],
+      duties: ['', [Validators.required]],
+      tools: ['', [Validators.required]],
+      salary: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      deadline: ['', [Validators.required]],
+      workMode: ['', [Validators.required]],
+      status: ['ACTIVE', [Validators.required]],
+      offerType: ['', [Validators.required]],
       position: [''],
-      workingHours: [''],
+      workingHours: ['', [Validators.pattern(/^\d+$/), Validators.min(1)]],
       benefits: [''],
       contractType: [''],
       schedule: [''],
       startDate: [''],
       endDate: ['']
+    }, {
+      validators: this.dateValidator
     });
   }
-  offers: any[] = [];
+
+  dateValidator(form: FormGroup) {
+    const startDate = form.get('startDate')?.value;
+    const endDate = form.get('endDate')?.value;
+    if (startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+      return { invalidDateRange: true };
+    }
+    return null;
+  }
 
   ngAfterViewInit(): void {
     if (this.currentView === 'dashboard') {
@@ -181,6 +170,17 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     this.selectedOffer = null;
     this.isEditing = false;
     this.offerForm.reset();
+    if (tab === 'my-offers') {
+      this.recruiterDashboardService.getMyOffers().subscribe({
+        next: (response) => {
+          this.offers = response.data;
+        },
+        error: (error) => {
+          this.errorMessage = 'Erreur lors du chargement des offres : ' + (error.error?.message || error.message);
+          console.error('Erreur chargement offres:', error);
+        }
+      });
+    }
   }
 
   onCountryChange(event: Event) {
@@ -193,7 +193,6 @@ export class RecruiterDashboardComponent implements AfterViewInit {
 
   onOfferTypeChange(event: Event) {
     this.offerType = (event.target as HTMLInputElement).value;
-    // Réinitialiser les champs conditionnels
     this.offerForm.get('position')?.setValue('');
     this.offerForm.get('workingHours')?.setValue('');
     this.offerForm.get('benefits')?.setValue('');
@@ -206,26 +205,24 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   onSubmitOffer() {
     if (this.offerForm.valid) {
       const formValue = this.offerForm.value;
-      const location = `${formValue.country}${formValue.otherCountry ? ` (${formValue.otherCountry})` : ''}, ${formValue.city}`;
 
-      // Définir baseOffer comme un objet complet de type OfferModel
       const baseOffer: OfferModel = {
-        id: '', // Sera généré par le backend, valeur temporaire
-        deadline: new Date(formValue.deadline),
+        deadline: formValue.deadline,
         description: formValue.description,
         dutiesAndResponsibilities: formValue.duties,
         field: formValue.field,
-        location: location,
+        country: formValue.country === 'other' ? formValue.otherCountry : formValue.country,
+        city: formValue.city,
         minQualifications: formValue.minQualifications,
         salary: parseFloat(formValue.salary),
         tools: formValue.tools,
-        workMode: formValue.workMode,
-        status: formValue.status,
-        recruiter: { id: 'currentRecruiterId' } as RecruiterModel // Remplacez par l'ID réel
+        workMode: formValue.workMode.toUpperCase(),
+        status: formValue.status.toUpperCase(),
+        offerType: formValue.offerType.toUpperCase()
       };
 
       if (this.isEditing) {
-        this.successMessage = 'Offer update functionality not implemented yet.';
+        this.successMessage = 'La mise à jour des offres n\'est pas encore implémentée.';
       } else {
         switch (formValue.offerType) {
           case 'Full-time':
@@ -247,8 +244,9 @@ export class RecruiterDashboardComponent implements AfterViewInit {
                 setTimeout(() => this.successMessage = null, 3000);
               },
               error: (error) => {
-                this.errorMessage = 'Error creating offer: ' + (error.error?.message || error.message);
+                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
                 this.successMessage = null;
+                console.error('Erreur création offre:', error);
               }
             });
             break;
@@ -270,16 +268,17 @@ export class RecruiterDashboardComponent implements AfterViewInit {
                 setTimeout(() => this.successMessage = null, 3000);
               },
               error: (error) => {
-                this.errorMessage = 'Error creating offer: ' + (error.error?.message || error.message);
+                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
                 this.successMessage = null;
+                console.error('Erreur création offre:', error);
               }
             });
             break;
           case 'Internship':
             const internshipOffer: InternshipOfferModel = {
               ...baseOffer,
-              startDate: new Date(formValue.startDate),
-              endDate: new Date(formValue.endDate)
+              startDate: formValue.startDate,
+              endDate: formValue.endDate
             };
             this.recruiterDashboardService.createInternshipOffer(internshipOffer).subscribe({
               next: (response) => {
@@ -292,25 +291,26 @@ export class RecruiterDashboardComponent implements AfterViewInit {
                 setTimeout(() => this.successMessage = null, 3000);
               },
               error: (error) => {
-                this.errorMessage = 'Error creating offer: ' + (error.error?.message || error.message);
+                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
                 this.successMessage = null;
+                console.error('Erreur création offre:', error);
               }
             });
             break;
         }
       }
     } else {
-      this.errorMessage = 'Please fill out the form correctly.';
+      this.errorMessage = 'Veuillez remplir correctement le formulaire.';
       this.successMessage = null;
     }
   }
+
   updateOffer(offer: any) {
     this.selectedOffer = offer;
     this.isEditing = true;
-    this.offersTab = 'post'; // Passer à l'onglet "Post" pour éditer
+    this.offersTab = 'post';
     this.offerType = offer.offerType;
     this.showOtherCountry = offer.country === 'other';
-    // Pré-remplir le formulaire avec les données de l'offre sélectionnée
     this.offerForm.patchValue({
       description: offer.description,
       field: offer.field || '',
@@ -323,7 +323,7 @@ export class RecruiterDashboardComponent implements AfterViewInit {
       salary: offer.salary || '',
       deadline: offer.deadline || '',
       workMode: offer.workMode || '',
-      status: offer.status || 'Active',
+      status: offer.status || 'ACTIVE',
       offerType: offer.offerType || '',
       position: offer.position || '',
       workingHours: offer.workingHours || '',
@@ -339,35 +339,32 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     this.isEditing = false;
     this.selectedOffer = null;
     this.offerForm.reset();
-    this.offersTab = 'my-offers'; // Retourner à la vue "My Offers"
+    this.offersTab = 'my-offers';
   }
 
   deleteOffer(offer: any) {
     console.log('Delete offer:', offer);
-    this.offers = this.offers.filter(o => o.id !== offer.id); // Correction : utiliser l'id au lieu de l'objet
+    this.offers = this.offers.filter(o => o.id !== offer.id);
   }
 
   viewApplications(offer: any) {
     console.log('View applications for offer:', offer);
-    // Logique pour voir les applications
   }
 
   onSubmitSettings() {
     if (this.settingsForm.valid) {
-      this.successMessage = 'Settings saved successfully!';
+      this.successMessage = 'Paramètres enregistrés avec succès !';
       this.errorMessage = null;
       setTimeout(() => {
         this.successMessage = null;
       }, 3000);
     } else {
-      this.errorMessage = 'Please fill out the form correctly.';
+      this.errorMessage = 'Veuillez remplir correctement le formulaire.';
       this.successMessage = null;
     }
   }
 
-
   logout(): void {
-    this.logoutMessage = 'You are logged out from your space';
     this.authRedirectService.logout();
     setTimeout(() => {
       this.logoutMessage = null;
