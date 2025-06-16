@@ -1,0 +1,102 @@
+/* Center the upload container vertically and horizontally */
+.upload-container {
+  background: white;
+  padding: 2rem;
+  width: 400px;
+  margin: 0 auto;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  font-family: sans-serif;
+}
+.upload-container h3 {
+  color: #055695;
+  font-size: 25px;
+  font-weight: 700;
+  font-family: 'popins', sans-serif;
+}
+strong {
+  color: rgba(0, 0, 110, 0.93);
+  font-weight: 700;
+}
+.file-text {
+  color: #777;
+  font-weight: 500;
+  font-size: 14px;
+  margin-left: 4px;
+  font-style: italic;
+  word-break: break-all;
+}
+
+
+/* Hide the default file input and style the custom drop zone */
+.file-input {
+  display: none;
+}
+
+.drop-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 200px;
+  height: 150px;
+  margin: 1rem auto;
+  border: 2px dashed #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #f9f9f9;
+  transition: border-color 0.3s;
+}
+
+.drop-zone:hover {
+  border-color: #4AFFFC;
+}
+
+/* Style the Bootstrap upload icon */
+.bi-upload {
+  font-size: 2rem;
+  color: rgba(0, 0, 110, 0.93);
+  margin-bottom: 0.5rem;
+}
+
+.drop-zone p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.file-name {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.submit-btn {
+  padding: 8px 24px;
+  background-color: #4AFFFC;
+  color: white;
+  border: none;
+  width: 80%;
+  height: 3rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  color: rgba(0, 0, 110, 0.93);
+  text-align: center;
+  font-family: 'popins', sans-serif;
+}
+
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.success {
+  color: green;
+  margin-top: 10px;
+}

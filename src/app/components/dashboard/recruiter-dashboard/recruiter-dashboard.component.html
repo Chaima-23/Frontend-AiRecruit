@@ -1,5 +1,5 @@
 <div class="container">
-  <div class="sidebar" *ngIf="currentView !== 'settings' && currentView !== 'offers' && currentView !== 'reports'">
+  <div class="sidebar" *ngIf="currentView !== 'settings' && currentView !== 'offers' && currentView !== 'applications'">
     <div class="top-nav">
       <div class="logo-container">
         <div class="logo">
@@ -29,7 +29,6 @@
     <div *ngIf="currentView === 'dashboard'">
       <h1>Dashboard</h1>
       <p class="welcome">Welcome back, Ons</p>
-
       <!-- Stats Cards -->
       <div class="stats-container">
         <div class="stats-container-top">
@@ -212,7 +211,6 @@
                 <option value="Internship">Internship</option>
               </select>
             </div>
-
             <!-- Conditional fields based on offerType -->
             <div class="conditional-fields">
               <div *ngIf="offerType === 'Full-time'">
@@ -294,17 +292,19 @@
             </thead>
             <tbody>
             <tr *ngFor="let offer of offers">
-              <td>{{ offer.description }}</td>
-              <td>{{ offer.applications }}</td>
-              <td>{{ offer.offerType }}</td>
+              <td class="custom-cell">{{ offer.description }}</td>
+              <td class="custom-cell">{{ offer.applications }}</td>
+              <td class="custom-cell">{{ offer.offerType | titlecase }}</td>
               <td [ngClass]="{
-                  'status-active': offer.status === 'Active',
-                  'status-expired': offer.status === 'Expired'
-                }">
-                {{ offer.status }}
+  'status': true,
+  'table': true,
+  'status-active': offer.status === 'ACTIVE',
+  'status-expired': offer.status === 'EXPIRED'
+}">
+                {{ offer.status | titlecase }}
               </td>
               <td>
-                <button class="btn view-btn" (click)="viewApplications(offer)">View Applications</button>
+                <button class="btn app-btn" (click)="viewApplications(offer)">View Applications</button>
                 <button class="btn edit-btn" (click)="updateOffer(offer)">Update</button>
                 <button class="btn delete-btn" (click)="deleteOffer(offer)">Delete</button>
               </td>
@@ -314,7 +314,119 @@
         </div>
       </div>
     </div>
-
+    <!-- Applications View -->
+    <div *ngIf="currentView === 'applications'" class="applications-view">
+      <div class="header">
+        <div class="nav-home">
+          <div class="home-icon">
+            <i class="bi bi-arrow-left back-arrow" (click)="backToListOffers()"></i>
+          </div>
+        </div>
+        <h1>Offer Applications</h1>
+      </div>
+      <div class="applications-content">
+        <div class="horizontal-card">
+          <!-- All Applications -->
+          <div class="section left-section">
+            <h2>All applications ({{ applications.length }})</h2>
+            <div class="transparent-card">
+              <div class="candidates-list">
+                <div *ngFor="let application of applications" class="candidate-card">
+                  <div class="candidate-info">
+                    <h3>
+                      {{ application.firstName }}<br>
+                      <span class="candidate-title">{{ application.description }}</span>
+                      <i class="bi bi-star" [class.favorite]="isFavorite(application)" (click)="toggleFavorite(application)"></i>
+                    </h3>
+                    <hr class="separator" />
+                    <ul class="candidate-details">
+                      <li><strong>{{ application.yearsOfExperience }} Experience</strong></li>
+                      <li><strong>Education:</strong> {{ application.diploma }}</li>
+                      <li><strong>Applied:</strong> {{ application.date | date:'MMM d, yyyy' }}</li>
+                    </ul>
+                  </div>
+                  <div class="candidate-actions">
+                    <button class="view-btn" (click)="viewProfile(application)">View profile</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Favorite Candidates -->
+          <div class="section right-section">
+            <h2>Favorite candidates ({{ favoriteCandidates.length }})</h2>
+            <div class="transparent-card">
+              <div class="candidates-list">
+                <div *ngFor="let favorite of favoriteCandidates" class="candidate-card">
+                  <div class="candidate-info">
+                    <h3>
+                      {{ favorite.firstName }}<br>
+                      <span class="candidate-title">{{ favorite.description }}</span>
+                      <i class="bi bi-star-fill" [class.favorite]="true" (click)="toggleFavorite(favorite)"></i>
+                    </h3>
+                    <hr class="separator" />
+                    <ul class="candidate-details">
+                      <li><strong>{{ favorite.yearsOfExperience }} Experience</strong></li>
+                      <li><strong>Education:</strong> {{ favorite.diploma }}</li>
+                      <li><strong>Applied:</strong> {{ favorite.date | date:'MMM d, yyyy' }}</li>
+                    </ul>
+                  </div>
+                  <div class="candidate-actions">
+                    <button class="btn view-btn" (click)="viewProfile(favorite)">View profile</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="offer-details-grid">
+        <div class="detail-item">
+          <strong>Name:</strong> <span>{{ selectedProfile?.firstName }} {{ selectedProfile?.lastName }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Email:</strong> <span>{{ selectedProfile?.email }}</span>
+        </div>
+        <div class="detail-item">
+            <strong>Phone:</strong> <span>{{ selectedProfile?.phoneNumber  }}</span>
+        </div>
+        <div class="detail-item">
+            <strong>Date of Birth:</strong> <span>{{ selectedProfile?.dateOfBirth | date:'MMM d, yyyy' }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Country:</strong> <span>{{ selectedProfile?.country }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>City:</strong> <span>{{ selectedProfile?.city  }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Address:</strong> <span>{{ selectedProfile?.address }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Diploma:</strong> <span>{{ selectedProfile?.diploma  }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Specialization:</strong> <span>{{ selectedProfile?.specialization  }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Years of Experience:</strong> <span>{{ selectedProfile?.yearsOfExperience  }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Technical Skills:</strong> <span>{{ selectedProfile?.technicalSkills }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Soft Skills:</strong> <span>{{ selectedProfile?.softSkills }}</span>
+        </div>
+        <div class="detail-item">
+          <strong>Applied for Offer:</strong> <span>{{ selectedApplicationOffer?.description }}</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="apply-btn" (click)="closeProfileModal()">Close</button>
+    </div>
     <!-- Settings View -->
     <div *ngIf="currentView === 'settings'">
       <!-- Header -->
@@ -389,15 +501,8 @@
           </div>
           <div class="form-group">
             <label for="field">Field</label>
-            <select id="field" formControlName="field">
-              <option value="" disabled selected>Select field</option>
-              <option value="Technology">Technology</option>
-              <option value="Finance">Finance</option>
-              <option value="Healthcare">Healthcare</option>
-              <option value="Other">Other</option>
-            </select>
+            <input type="text" id="field" formControlName="field" placeholder="Enter company field" />
           </div>
-
           <div class="form-actions">
             <button type="button" class="cancel-btn" (click)="setView('dashboard')">Cancel</button>
             <button type="submit" class="save-btn" [disabled]="settingsForm.invalid">Save Changes</button>

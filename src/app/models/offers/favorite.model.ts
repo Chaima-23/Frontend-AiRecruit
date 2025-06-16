@@ -1,9 +1,9 @@
 
 import { OfferModel } from './offer.model';
-import {UserModel} from '../idm/user.model';
+import {RecruiterModel} from '../idm/recruiter.model';
 
 export interface FavoriteModel {
   id: string;
-  user: UserModel;
+  recruiter: RecruiterModel;
   offer: OfferModel;
 }

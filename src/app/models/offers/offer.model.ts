@@ -1,6 +1,6 @@
 
 export interface OfferModel {
-
+  id: string;
   deadline: string;
   description: string;
   dutiesAndResponsibilities: string;

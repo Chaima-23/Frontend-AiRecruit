@@ -10,6 +10,8 @@ import { PartTimeJobModel } from '../../../models/offers/part-time-job.model';
 import { InternshipOfferModel } from '../../../models/offers/internship-offer.model';
 import { RecruiterDashboardService } from '../../../core/services/recruiter-dashboard.service';
 import { OfferModel } from '../../../models/offers/offer.model';
+import { ApplicationRequest } from '../../../models/request/application-request.model';
+import {CandidateModel} from '../../../models/idm/candidate.model';
 
 @Component({
   selector: 'app-recruiter-dashboard',
@@ -32,9 +34,9 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   errorMessage: string | null = null;
   selectedOffer: any = null;
   isEditing: boolean = false;
-
   settingsForm: FormGroup;
   offerForm: FormGroup;
+  offers: any[] = [];
 
   dailyViewsData = [
     { name: 'M', value: 10 },
@@ -69,8 +71,6 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     }]
   };
 
-  offers: any[] = [];
-
   constructor(
     private router: Router,
     private fb: FormBuilder,
@@ -98,16 +98,16 @@ export class RecruiterDashboardComponent implements AfterViewInit {
       country: ['', [Validators.required]],
       otherCountry: [''],
       city: ['', [Validators.required]],
-      minQualifications: ['', [Validators.required]],
-      duties: ['', [Validators.required]],
+      minQualifications: [''],
+      duties: [''],
       tools: ['', [Validators.required]],
-      salary: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]],
+      salary: ['', [Validators.required]],
       deadline: ['', [Validators.required]],
-      workMode: ['', [Validators.required]],
-      status: ['ACTIVE', [Validators.required]],
-      offerType: ['', [Validators.required]],
+      workMode: [''],
+      status: ['ACTIVE'],
+      offerType: [''],
       position: [''],
-      workingHours: ['', [Validators.pattern(/^\d+$/), Validators.min(1)]],
+      workingHours: [''],
       benefits: [''],
       contractType: [''],
       schedule: [''],
@@ -171,13 +171,15 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     this.isEditing = false;
     this.offerForm.reset();
     if (tab === 'my-offers') {
+      console.log('Attempting to load my offers from backend...');
       this.recruiterDashboardService.getMyOffers().subscribe({
         next: (response) => {
+          console.log('My offers loaded successfully:', response.data);
           this.offers = response.data;
         },
         error: (error) => {
+          console.error('Error loading my offers from backend:', error);
           this.errorMessage = 'Erreur lors du chargement des offres : ' + (error.error?.message || error.message);
-          console.error('Erreur chargement offres:', error);
         }
       });
     }
@@ -205,8 +207,8 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   onSubmitOffer() {
     if (this.offerForm.valid) {
       const formValue = this.offerForm.value;
-
       const baseOffer: OfferModel = {
+        id: this.isEditing ? this.selectedOffer.id : null,
         deadline: formValue.deadline,
         description: formValue.description,
         dutiesAndResponsibilities: formValue.duties,
@@ -222,8 +224,7 @@ export class RecruiterDashboardComponent implements AfterViewInit {
       };
 
       if (this.isEditing) {
-        this.successMessage = 'La mise à jour des offres n\'est pas encore implémentée.';
-      } else {
+        console.log('Attempting to update offer with ID:', baseOffer.id);
         switch (formValue.offerType) {
           case 'Full-time':
             const fullTimeJob: FullTimeJobModel = {
@@ -233,20 +234,23 @@ export class RecruiterDashboardComponent implements AfterViewInit {
               benefits: formValue.benefits || '',
               contractType: formValue.contractType || ''
             };
-            this.recruiterDashboardService.createFullTimeJob(fullTimeJob).subscribe({
+            this.recruiterDashboardService.updateFullTimeJob(baseOffer.id!, fullTimeJob).subscribe({
               next: (response) => {
-                this.offers.push(response.data);
-                this.successMessage = response.message;
+                console.log('Offer updated successfully:', response.data);
+                this.offers = this.offers.map(o => o.id === baseOffer.id ? response.data : o);
+                this.successMessage = response.message || 'Offer updated successfully.';
                 this.errorMessage = null;
+                this.isEditing = false;
+                this.selectedOffer = null;
                 this.offerForm.reset();
                 this.showOtherCountry = false;
                 this.offerType = '';
                 setTimeout(() => this.successMessage = null, 3000);
               },
               error: (error) => {
-                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
+                console.error('Error updating offer:', error);
+                this.errorMessage = 'Error updating offer: ' + (error.error?.message || error.message);
                 this.successMessage = null;
-                console.error('Erreur création offre:', error);
               }
             });
             break;
@@ -257,20 +261,23 @@ export class RecruiterDashboardComponent implements AfterViewInit {
               workingHours: parseInt(formValue.workingHours || '0', 10),
               schedule: formValue.schedule || ''
             };
-            this.recruiterDashboardService.createPartTimeJob(partTimeJob).subscribe({
+            this.recruiterDashboardService.updatePartTimeJob(baseOffer.id!, partTimeJob).subscribe({
               next: (response) => {
-                this.offers.push(response.data);
-                this.successMessage = response.message;
+                console.log('Offer updated successfully:', response.data);
+                this.offers = this.offers.map(o => o.id === baseOffer.id ? response.data : o);
+                this.successMessage = response.message || 'Offer updated successfully.';
                 this.errorMessage = null;
+                this.isEditing = false;
+                this.selectedOffer = null;
                 this.offerForm.reset();
                 this.showOtherCountry = false;
                 this.offerType = '';
                 setTimeout(() => this.successMessage = null, 3000);
               },
               error: (error) => {
-                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
+                console.error('Error updating offer:', error);
+                this.errorMessage = 'Error updating offer: ' + (error.error?.message || error.message);
                 this.successMessage = null;
-                console.error('Erreur création offre:', error);
               }
             });
             break;
@@ -280,8 +287,35 @@ export class RecruiterDashboardComponent implements AfterViewInit {
               startDate: formValue.startDate,
               endDate: formValue.endDate
             };
-            this.recruiterDashboardService.createInternshipOffer(internshipOffer).subscribe({
+            this.recruiterDashboardService.updateInternshipOffer(baseOffer.id!, internshipOffer).subscribe({
               next: (response) => {
+                console.log('Offer updated successfully:', response.data);
+                this.offers = this.offers.map(o => o.id === baseOffer.id ? response.data : o);
+                this.successMessage = response.message || 'Offer updated successfully.';
+                this.errorMessage = null;
+                this.isEditing = false;
+                this.selectedOffer = null;
+                this.offerForm.reset();
+                this.showOtherCountry = false;
+                this.offerType = '';
+                setTimeout(() => this.successMessage = null, 3000);
+              },
+              error: (error) => {
+                console.error('Error updating offer:', error);
+                this.errorMessage = 'Error updating offer: ' + (error.error?.message || error.message);
+                this.successMessage = null;
+              }
+            });
+            break;
+        }
+      } else {
+        console.log('Attempting to create new offer:', baseOffer);
+        switch (formValue.offerType) {
+          case 'Full-time':
+            const fullTimeJob: FullTimeJobModel = { ...baseOffer, position: formValue.position || '', workingHours: parseInt(formValue.workingHours || '0', 10), benefits: formValue.benefits || '', contractType: formValue.contractType || '' };
+            this.recruiterDashboardService.createFullTimeJob(fullTimeJob).subscribe({
+              next: (response) => {
+                console.log('Offer created successfully:', response.data);
                 this.offers.push(response.data);
                 this.successMessage = response.message;
                 this.errorMessage = null;
@@ -291,9 +325,49 @@ export class RecruiterDashboardComponent implements AfterViewInit {
                 setTimeout(() => this.successMessage = null, 3000);
               },
               error: (error) => {
+                console.error('Error creating offer:', error);
                 this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
                 this.successMessage = null;
-                console.error('Erreur création offre:', error);
+              }
+            });
+            break;
+          case 'Part-time':
+            const partTimeJob: PartTimeJobModel = { ...baseOffer, position: formValue.position || '', workingHours: parseInt(formValue.workingHours || '0', 10), schedule: formValue.schedule || '' };
+            this.recruiterDashboardService.createPartTimeJob(partTimeJob).subscribe({
+              next: (response) => {
+                console.log('Offer created successfully:', response.data);
+                this.offers.push(response.data);
+                this.successMessage = response.message;
+                this.errorMessage = null;
+                this.offerForm.reset();
+                this.showOtherCountry = false;
+                this.offerType = '';
+                setTimeout(() => this.successMessage = null, 3000);
+              },
+              error: (error) => {
+                console.error('Error creating offer:', error);
+                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
+                this.successMessage = null;
+              }
+            });
+            break;
+          case 'Internship':
+            const internshipOffer: InternshipOfferModel = { ...baseOffer, startDate: formValue.startDate, endDate: formValue.endDate };
+            this.recruiterDashboardService.createInternshipOffer(internshipOffer).subscribe({
+              next: (response) => {
+                console.log('Offer created successfully:', response.data);
+                this.offers.push(response.data);
+                this.successMessage = response.message;
+                this.errorMessage = null;
+                this.offerForm.reset();
+                this.showOtherCountry = false;
+                this.offerType = '';
+                setTimeout(() => this.successMessage = null, 3000);
+              },
+              error: (error) => {
+                console.error('Error creating offer:', error);
+                this.errorMessage = 'Erreur lors de la création de l\'offre : ' + (error.error?.message || error.message);
+                this.successMessage = null;
               }
             });
             break;
@@ -343,12 +417,184 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   }
 
   deleteOffer(offer: any) {
-    console.log('Delete offer:', offer);
-    this.offers = this.offers.filter(o => o.id !== offer.id);
+    if (confirm('Are you sure you want to delete this offer?')) {
+      const offerId = offer.id;
+      console.log('Attempting to delete offer with ID:', offerId);
+      switch (offer.offerType.toUpperCase()) {
+        case 'FULL-TIME':
+          this.recruiterDashboardService.deleteFullTimeJob(offerId).subscribe({
+            next: () => {
+              console.log('Offer deleted successfully, ID:', offerId);
+              this.offers = this.offers.filter(o => o.id !== offerId);
+              this.successMessage = 'Offer deleted successfully.';
+              setTimeout(() => this.successMessage = null, 3000);
+            },
+            error: (error) => {
+              console.error('Error deleting offer with ID:', offerId, error);
+              this.errorMessage = 'Error deleting offer: ' + (error.error?.message || error.message);
+            }
+          });
+          break;
+        case 'PART-TIME':
+          this.recruiterDashboardService.deletePartTimeJob(offerId).subscribe({
+            next: () => {
+              console.log('Offer deleted successfully, ID:', offerId);
+              this.offers = this.offers.filter(o => o.id !== offerId);
+              this.successMessage = 'Offer deleted successfully.';
+              setTimeout(() => this.successMessage = null, 3000);
+            },
+            error: (error) => {
+              console.error('Error deleting offer with ID:', offerId, error);
+              this.errorMessage = 'Error deleting offer: ' + (error.error?.message || error.message);
+            }
+          });
+          break;
+        case 'INTERNSHIP':
+          this.recruiterDashboardService.deleteInternshipOffer(offerId).subscribe({
+            next: () => {
+              console.log('Offer deleted successfully, ID:', offerId);
+              this.offers = this.offers.filter(o => o.id !== offerId);
+              this.successMessage = 'Offer deleted successfully.';
+              setTimeout(() => this.successMessage = null, 3000);
+            },
+            error: (error) => {
+              console.error('Error deleting offer with ID:', offerId, error);
+              this.errorMessage = 'Error deleting offer: ' + (error.error?.message || error.message);
+            }
+          });
+          break;
+      }
+    }
   }
 
-  viewApplications(offer: any) {
-    console.log('View applications for offer:', offer);
+  applications: any[] = [];
+  favoriteCandidates: any[] = [];
+  selectedProfile: CandidateModel | null = null;
+  selectedApplicationOffer: OfferModel | null = null;
+
+  ngOnInit(): void {
+    console.log('Component initialized, loading applications and favorites...');
+    this.loadApplications();
+    this.loadFavoriteApplications();
+  }
+
+  loadApplications(offerId?: string): void {
+    console.log('Attempting to load applications from backend for offer ID:', offerId);
+    this.recruiterDashboardService.getApplications(offerId).subscribe({
+      next: (response) => {
+        console.log('Applications loaded successfully:', response.data);
+        this.applications = response.data.map((app: any) => ({
+          ...app,
+          appliedDate: app.date ? new Date(app.date) : new Date(),
+          isFavorite: false
+        }));
+      },
+      error: (error) => {
+        console.error('Error loading applications from backend:', error);
+      }
+    });
+  }
+
+  loadFavoriteApplications(): void {
+    console.log('Attempting to load favorite applications from backend...');
+    this.recruiterDashboardService.getFavoriteApplications().subscribe({
+      next: (response) => {
+        console.log('Favorite applications loaded successfully:', response.data);
+        const favoriteApps: ApplicationRequest[] = response.data;
+        this.favoriteCandidates = favoriteApps.map((app: ApplicationRequest) => ({
+          firstName: app.candidate.firstName,
+          yearsOfExperience: app.candidate.yearsOfExperience,
+          description: app.offer.description,
+          diploma: app.candidate.diploma,
+          date: app.date ? new Date(app.date) : new Date(),
+          isFavorite: true,
+          id: app.id,
+          offer: app.offer
+        }));
+        console.log('favoriteCandidates after mapping:', this.favoriteCandidates); // Ajout du log
+        this.applications.forEach(app => {
+          app.isFavorite = favoriteApps.some((fav: ApplicationRequest) => fav.id === app.id);
+        });
+      },
+      error: (error) => {
+        console.error('Error loading favorite applications from backend:', error);
+      }
+    });
+  }
+  viewApplications(offer: any): void {
+    console.log('Viewing applications for offer ID:', offer.id);
+    this.selectedApplicationOffer = offer;
+    this.currentView = 'applications';
+    this.loadApplications(offer.id);
+  }
+
+  toggleFavorite(application: any): void {
+    console.log('Toggling favorite status for application ID:', application.id);
+    const isFavorite = !application.isFavorite;
+    if (isFavorite) {
+      this.recruiterDashboardService.addApplicationToFavorites(application.id).subscribe({
+        next: () => {
+          console.log('Application added to favorites successfully, ID:', application.id);
+          application.isFavorite = true;
+          if (!this.favoriteCandidates.some(fc => fc.id === application.id)) {
+            this.favoriteCandidates.push({ ...application, isFavorite: true });
+          }
+        },
+        error: (error) => {
+          console.error('Error adding application to favorites, ID:', application.id, error);
+        }
+      });
+    } else {
+      this.recruiterDashboardService.removeApplicationFromFavorites(application.id).subscribe({
+        next: () => {
+          console.log('Application removed from favorites successfully, ID:', application.id);
+          application.isFavorite = false;
+          this.favoriteCandidates = this.favoriteCandidates.filter(fc => fc.id !== application.id);
+        },
+        error: (error) => {
+          console.error('Error removing application from favorites, ID:', application.id, error);
+        }
+      });
+    }
+  }
+
+  isFavorite(application: any): boolean {
+    return application.isFavorite || this.favoriteCandidates.some(fc => fc.id === application.id);
+  }
+
+  viewProfile(application: any): void {
+    console.log('Viewing profile for candidate ID:', application.candidate.id);
+    this.recruiterDashboardService.getCandidateDetails(application.candidate.id).subscribe({
+      next: (response) => {
+        console.log('Candidate details loaded successfully:', response.data);
+        this.selectedProfile = {
+          ...application.candidate,
+          ...response.data,
+          dateOfBirth: response.data.dateOfBirth ? new Date(response.data.dateOfBirth) : null,
+          diploma: response.data.diploma,
+          yearsOfExperience: response.data.yearsOfExperience,
+          phoneNumber: response.data.phoneNumber,
+          technicalSkills: response.data.technicalSkills ,
+          softSkills: response.data.softSkills
+        };
+        // Set the selectedApplicationOffer to include the offer title
+        this.selectedApplicationOffer = application.offer || { description: 'Unknown Offer' };
+      },
+      error: (error) => {
+        console.error('Error loading candidate details for ID:', application.candidate.id, error);
+      }
+    });
+  }
+
+  closeProfileModal() {
+    this.selectedProfile = null;
+  }
+
+  backToListOffers(): void {
+    console.log('Returning to list of offers...');
+    this.applications = [];
+    this.currentView = 'offers';
+    this.offersTab = 'my-offers';
   }
 
   onSubmitSettings() {
@@ -365,6 +611,7 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   }
 
   logout(): void {
+    console.log('Initiating logout...');
     this.authRedirectService.logout();
     setTimeout(() => {
       this.logoutMessage = null;

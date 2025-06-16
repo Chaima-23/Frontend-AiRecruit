@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { HomeComponent } from './components/home/home/home.component';
-import { SignInComponent } from './components/auth/sign-in/sign-in.component';
 import { SignupCandidateComponent } from './components/auth/signup-candidate/signup-candidate.component';
 import {SignupRecruiterComponent} from './components/auth/signup-recruiter/signup-recruiter.component';
 import { OffersListComponent } from './components/offers/offers-list/offers-list.component';
@@ -18,6 +17,7 @@ import {ContactUsComponent} from './components/contact-us/contact-us.component';
 import {ForgotPasswordComponent} from './components/auth/forgot-password/forgot-password.component';
 import {UnauthorizedComponent} from './errors/unauthorized.component';
 import {canActivateAuthRole} from './core/guards/auth-role.guard';
+import {UploadCvComponent} from './components/Cv/upload-cv.component';
 
 
 
@@ -75,6 +75,9 @@ export const routes: Routes = [
   // Évaluation
   { path: 'evaluation/result/:id', component: ResultViewComponent },
   { path: 'evaluation/test/:id', component: TestAttemptComponent },
+
+  //cv
+  {path: 'importCV', component: UploadCvComponent},
 
   // Route non trouvée
   { path: '**', redirectTo: '', pathMatch: 'full' }

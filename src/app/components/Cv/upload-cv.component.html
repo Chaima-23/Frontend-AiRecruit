@@ -1,0 +1,36 @@
+<div class="upload-container">
+  <h3>Upload your CV</h3>
+
+  <!-- Custom drop zone with Bootstrap upload icon -->
+  <label for="file-input" class="drop-zone">
+    <i class="bi bi-upload"></i>
+    <p>Browse a file to upload</p>
+  </label>
+
+  <!-- Hidden file input -->
+  <input
+    type="file"
+    id="file-input"
+    accept=".pdf"
+    (change)="onFileSelected($event)"
+    class="file-input"
+  />
+
+  <div class="file-name" *ngIf="selectedFile">
+    <strong>Selected:</strong>
+    <span class="file-text">{{ selectedFile?.name }}</span>
+  </div>
+
+  <button
+    class="submit-btn"
+    [disabled]="!selectedFile"
+    (click)="onSubmit()"
+  >
+    Submit
+  </button>
+
+  <!-- Display success message -->
+  <div *ngIf="successMessage" class="success">
+    {{ successMessage }}
+  </div>
+</div>
