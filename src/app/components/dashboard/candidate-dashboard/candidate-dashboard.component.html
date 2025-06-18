@@ -154,7 +154,6 @@
         <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
       </div>
     </div>
-
     <!-- Offers View -->
     <div *ngIf="currentView === 'offers'" class="offers-view">
       <div class="settings-form-card">
@@ -164,18 +163,17 @@
         <div class="offers-container">
           <div class="offer-card" *ngFor="let offer of displayedOffers">
             <div class="offer-header">
-              <span class="location">{{ offer.location }}</span>
+              <span class="location">{{ offer.country }}, {{ offer.city }}</span>
               <a href="javascript:void(0)" class="details-link" (click)="showOfferDetails(offer)">Details</a>
             </div>
-            <div class="offer-company">{{ offer.company }}</div>
-            <div class="offer-title">{{ offer.title }}</div>
             <div class="offer-description">{{ offer.description }}</div>
-            <div class="offer-tools">Tools: {{ offer.tools.join(', ') }}</div>
+            <div class="offer-duties">{{ offer.dutiesAndResponsibilities }}</div>
+            <div class="offer-tools">Tools: {{ offer.tools }}</div>
             <div class="offer-details">
-              <span class="offer-type">{{ offer.type }}</span>
+              <span class="offer-type">{{ offer.offerType }}</span>
               <span class="offer-salary">{{ offer.salary }} DT</span>
             </div>
-            <button class="apply-btn">APPLY NOW</button>
+            <button class="apply-btn" (click)="setViewUploadCv(offer)">APPLY NOW</button>
           </div>
         </div>
         <div class="pagination">
@@ -193,7 +191,7 @@
     <div *ngIf="selectedOffer" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-header">
-          <h2>{{ selectedOffer.title }}</h2>
+          <h2>{{ selectedOffer.description }}</h2>
           <button class="close-btn" (click)="closeModal()">
             <i class="bi bi-x"></i>
           </button>
@@ -210,13 +208,13 @@
               <strong>City:</strong> {{ selectedOffer.city }}
             </div>
             <div class="detail-item">
-              <strong>Minimum Qualifications:</strong> {{ selectedOffer.minimumQualifications }}
+              <strong>Minimum Qualifications:</strong> {{ selectedOffer.minQualifications }}
             </div>
             <div class="detail-item">
-              <strong>Duties & Responsibilities:</strong> {{ selectedOffer.dutiesResponsibilities }}
+              <strong>Duties & Responsibilities:</strong> {{ selectedOffer.dutiesAndResponsibilities }}
             </div>
             <div class="detail-item">
-              <strong>Tools:</strong> {{ selectedOffer.tools.join(', ') }}
+              <strong>Tools:</strong> {{ selectedOffer.tools }}
             </div>
             <div class="detail-item">
               <strong>Salary:</strong> {{ selectedOffer.salary }} DT
@@ -231,48 +229,48 @@
               <strong>Status:</strong> {{ selectedOffer.status }}
             </div>
             <div class="detail-item">
-              <strong>Offer Type:</strong> {{ selectedOffer.type }}
+              <strong>Offer Type:</strong> {{ selectedOffer.offerType }}
             </div>
             <!-- Full Time Specific Fields -->
-            <ng-container *ngIf="selectedOffer.type === 'Full Time'">
+            <ng-container *ngIf="selectedOffer.offerType === 'Full Time'">
               <div class="detail-item">
-                <strong>Working Hours:</strong> {{ selectedOffer.workingHours }}
+                <strong>Working Hours:</strong> {{ (selectedFullTimeJob?.workingHours || 'N/A') }}
               </div>
               <div class="detail-item">
-                <strong>Benefits:</strong> {{ selectedOffer.benefits }}
+                <strong>Benefits:</strong> {{ (selectedFullTimeJob?.benefits || 'N/A') }}
               </div>
               <div class="detail-item">
-                <strong>Position:</strong> {{ selectedOffer.position }}
+                <strong>Position:</strong> {{ (selectedFullTimeJob?.position || 'N/A') }}
               </div>
               <div class="detail-item">
-                <strong>Contract Type:</strong> {{ selectedOffer.contractType }}
+                <strong>Contract Type:</strong> {{ (selectedFullTimeJob?.contractType || 'N/A') }}
               </div>
             </ng-container>
             <!-- Part Time Specific Fields -->
-            <ng-container *ngIf="selectedOffer.type === 'Part Time'">
+            <ng-container *ngIf="selectedOffer.offerType === 'Part Time'">
               <div class="detail-item">
-                <strong>Working Hours:</strong> {{ selectedOffer.workingHours }}
+                <strong>Working Hours:</strong> {{ (selectedPartTimeJob?.workingHours || 'N/A') }}
               </div>
               <div class="detail-item">
-                <strong>Schedule:</strong> {{ selectedOffer.schedule }}
+                <strong>Schedule:</strong> {{ (selectedPartTimeJob?.schedule || 'N/A') }}
               </div>
               <div class="detail-item">
-                <strong>Position:</strong> {{ selectedOffer.position }}
+                <strong>Position:</strong> {{ (selectedPartTimeJob?.position || 'N/A') }}
               </div>
             </ng-container>
             <!-- Internship Specific Fields -->
-            <ng-container *ngIf="selectedOffer.type === 'Internship'">
+            <ng-container *ngIf="selectedOffer.offerType === 'Internship'">
               <div class="detail-item">
-                <strong>Start Date:</strong> {{ selectedOffer.startDate }}
+                <strong>Start Date:</strong> {{ (selectedInternshipOffer?.startDate || 'N/A') }}
               </div>
               <div class="detail-item">
-                <strong>End Date:</strong> {{ selectedOffer.endDate }}
+                <strong>End Date:</strong> {{ (selectedInternshipOffer?.endDate || 'N/A') }}
               </div>
             </ng-container>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="apply-btn" (click)="closeModal()">Apply Now</button>
+          <button class="apply-btn" (click)="applyFromModal(selectedOffer)">Apply Now</button>
         </div>
       </div>
     </div>
@@ -289,6 +287,43 @@
           <div *ngFor="let application of myApplications" class="application-item">
             {{ application.title }}
           </div>
+        </div>
+      </div>
+    </div>
+    <!-- Upload CV View -->
+    <div *ngIf="currentView === 'upload-cv'" class="upload-cv-view">
+      <div class="upload-container">
+        <h3>Upload your CV for {{ offerForUpload?.description || 'Offer' }}</h3>
+        <!-- Custom drop zone with Bootstrap upload icon -->
+        <label for="file-input" class="drop-zone">
+          <i class="bi bi-upload"></i>
+          <p>Browse a file to upload</p>
+        </label>
+        <!-- Hidden file input -->
+        <input
+          type="file"
+          id="file-input"
+          accept=".pdf"
+          (change)="onFileSelected($event)"
+          class="file-input"
+        />
+        <div class="file-name" *ngIf="selectedFile">
+          <strong>Selected:</strong>
+          <span class="file-text">{{ selectedFile?.name }}</span>
+        </div>
+        <button
+          class="submit-btn"
+          [disabled]="!selectedFile || loading"
+          (click)="onSubmit()"
+        >
+          Submit
+        </button>
+        <!-- Display success or error message -->
+        <div *ngIf="successMessage" class="success">
+          {{ successMessage }}
+        </div>
+        <div *ngIf="error" class="error">
+          {{ error }}
         </div>
       </div>
     </div>

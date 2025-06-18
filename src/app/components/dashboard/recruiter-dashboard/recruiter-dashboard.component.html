@@ -372,7 +372,7 @@
                     </ul>
                   </div>
                   <div class="candidate-actions">
-                    <button class="btn view-btn" (click)="viewProfile(favorite)">View profile</button>
+                    <button class="view-btn" (click)="viewProfile(favorite)">View profile</button>
                   </div>
                 </div>
               </div>
@@ -381,51 +381,63 @@
         </div>
       </div>
     </div>
-    <div class="modal-body">
-      <div class="offer-details-grid">
-        <div class="detail-item">
-          <strong>Name:</strong> <span>{{ selectedProfile?.firstName }} {{ selectedProfile?.lastName }}</span>
+
+    <!-- Modal for Profile Details -->
+    <div *ngIf="selectedProfile" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>{{ selectedProfile.firstName }} {{ selectedProfile.lastName }}</h2>
+          <button class="close-btn" (click)="closeProfileModal()">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
-        <div class="detail-item">
-          <strong>Email:</strong> <span>{{ selectedProfile?.email }}</span>
+        <div class="modal-body">
+          <div class="offer-details-grid">
+            <div class="detail-item">
+              <strong>Name:</strong> <span>{{ selectedProfile.firstName }} {{ selectedProfile.lastName }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Email:</strong> <span>{{ selectedProfile.email }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Phone:</strong> <span>{{ selectedProfile.phoneNumber }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Date of Birth:</strong> <span>{{ selectedProfile.dateOfBirth | date:'MMM d, yyyy' }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Country:</strong> <span>{{ selectedProfile.country }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>City:</strong> <span>{{ selectedProfile.city }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Address:</strong> <span>{{ selectedProfile.address }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Diploma:</strong> <span>{{ selectedProfile.diploma }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Specialization:</strong> <span>{{ selectedProfile.specialization }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Years of Experience:</strong> <span>{{ selectedProfile.yearsOfExperience }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Technical Skills:</strong> <span>{{ selectedProfile.technicalSkills }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Soft Skills:</strong> <span>{{ selectedProfile.softSkills }}</span>
+            </div>
+            <div class="detail-item">
+              <strong>Applied for Offer:</strong> <span>{{ selectedApplicationOffer?.description }}</span>
+            </div>
+          </div>
         </div>
-        <div class="detail-item">
-            <strong>Phone:</strong> <span>{{ selectedProfile?.phoneNumber  }}</span>
-        </div>
-        <div class="detail-item">
-            <strong>Date of Birth:</strong> <span>{{ selectedProfile?.dateOfBirth | date:'MMM d, yyyy' }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Country:</strong> <span>{{ selectedProfile?.country }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>City:</strong> <span>{{ selectedProfile?.city  }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Address:</strong> <span>{{ selectedProfile?.address }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Diploma:</strong> <span>{{ selectedProfile?.diploma  }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Specialization:</strong> <span>{{ selectedProfile?.specialization  }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Years of Experience:</strong> <span>{{ selectedProfile?.yearsOfExperience  }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Technical Skills:</strong> <span>{{ selectedProfile?.technicalSkills }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Soft Skills:</strong> <span>{{ selectedProfile?.softSkills }}</span>
-        </div>
-        <div class="detail-item">
-          <strong>Applied for Offer:</strong> <span>{{ selectedApplicationOffer?.description }}</span>
+        <div class="modal-footer">
+          <button class="apply-btn" (click)="closeProfileModal()">Close</button>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="apply-btn" (click)="closeProfileModal()">Close</button>
     </div>
     <!-- Settings View -->
     <div *ngIf="currentView === 'settings'">

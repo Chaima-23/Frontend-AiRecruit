@@ -6,3 +6,4 @@ export interface InternshipOfferModel extends OfferModel {
 
 
 }
+
