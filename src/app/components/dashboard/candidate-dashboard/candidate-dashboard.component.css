@@ -286,10 +286,9 @@ form {
   max-width: 1200px;
   margin: 0 auto;
 }
-
-.offers-view .settings-header h1 {
+.offers-header h1 {
   color: #055695;
-  font-size: 24px;
+  font-size: 30px;
   font-weight: 600;
   margin-bottom: 20px;
 }
@@ -702,4 +701,181 @@ strong {
 .error-message {
   color: red;
   margin-top: 10px;
+}
+
+
+.form-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.2em;
+  color: #666;
+}
+
+.success-message, .error-message {
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success-message {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.error-message {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+/*test*/
+.test-view {
+  padding: 20px;
+}
+
+.test-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.question-card {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.question-card h3 {
+  margin: 0 0 15px;
+  font-size: 1.2em;
+}
+
+.options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.option input[type="radio"] {
+  margin: 0;
+}
+
+.option label {
+  margin: 0;
+  font-size: 1em;
+}
+
+.options-container select {
+  padding: 8px;
+  font-size: 1em;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  max-width: 300px;
+}
+
+.form-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.submit-btn {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.submit-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  font-size: 1.2em;
+  color: #666;
+}
+
+.success-message, .error-message {
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success-message {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.error-message {
+  background-color: #f2dede;
+  color: #a94442;
+}
+
+/*barre de recherche*/
+.offers-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 20px;
+  flex-wrap: wrap;
+}
+
+.search-container {
+  display: flex;
+  width: 400px;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  margin-top: -20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: none;
+  font-size: 16px;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #333;
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #999;
+}
+
+.search-button {
+  background-color: #00e0ff;
+  border: none;
+  padding: 0 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s;
+}
+
+.search-button i {
+  font-size: 20px;
+  color: #003344;
+}
+
+.search-button:hover {
+  background-color: #00cce5;
 }

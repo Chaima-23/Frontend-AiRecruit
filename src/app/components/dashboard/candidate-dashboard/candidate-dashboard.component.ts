@@ -9,11 +9,13 @@ import { OfferModel } from '../../../models/offers/offer.model';
 import { FullTimeJobModel } from '../../../models/offers/full-time-job.model';
 import { InternshipOfferModel } from '../../../models/offers/internship-offer.model';
 import { PartTimeJobModel } from '../../../models/offers/part-time-job.model';
+import { TestModel} from '../../../models/test/test.model';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-candidate-dashboard',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './candidate-dashboard.component.html',
   styleUrls: ['./candidate-dashboard.component.css']
 })
@@ -24,14 +26,17 @@ export class CandidateDashboardComponent implements OnInit {
   successMessage: string | null = null;
   errorMessage: string | null = null;
   isOtherCountry: boolean = false;
+  searchQuery: string = '';
+
+
 
   // Form Groups
   personalForm: FormGroup;
   profileForm: FormGroup;
 
   // Offer and Application Data
-  selectedOffer: OfferModel | null = null; // For modal display
-  offerForUpload: OfferModel | null = null; // For CV upload
+  selectedOffer: OfferModel | null = null;
+  offerForUpload: OfferModel | null = null;
   selectedFullTimeJob: FullTimeJobModel | null = null;
   selectedPartTimeJob: PartTimeJobModel | null = null;
   selectedInternshipOffer: InternshipOfferModel | null = null;
@@ -43,6 +48,10 @@ export class CandidateDashboardComponent implements OnInit {
   selectedFile: File | null = null;
   loading: boolean = false;
   error: string | null = null;
+
+  // Test Data
+  test: TestModel | null = null;
+  answers: (number | null)[] = []; // Store selected option indices
 
   // Pagination
   currentPage: number = 1;
@@ -93,25 +102,25 @@ export class CandidateDashboardComponent implements OnInit {
     this.currentView = view;
     if (view === 'offers') {
       this.loadOffers();
+    } else if (view === 'test') {
+      this.loadTest();
     }
   }
 
   setViewUploadCv(offer: OfferModel): void {
     console.log('Setting view to upload-cv for offer:', offer.id);
-    this.offerForUpload = offer; // Store offer for CV upload
+    this.offerForUpload = offer;
     this.currentView = 'upload-cv';
-    // Reset CV upload state
     this.selectedFile = null;
     this.loading = false;
     this.error = null;
     this.successMessage = null;
   }
 
-  // Handle Apply Now from modal
   applyFromModal(offer: OfferModel | null): void {
     if (offer) {
-      this.setViewUploadCv(offer); // Switch to upload-cv view
-      this.closeModal(); // Close the modal
+      this.setViewUploadCv(offer);
+      this.closeModal();
     }
   }
 
@@ -224,7 +233,7 @@ export class CandidateDashboardComponent implements OnInit {
       return;
     }
 
-    if (!this.offerForUpload) { // Use offerForUpload instead of selectedOffer
+    if (!this.offerForUpload) {
       this.error = 'No offer selected.';
       return;
     }
@@ -239,11 +248,12 @@ export class CandidateDashboardComponent implements OnInit {
         this.successMessage = 'CV uploaded successfully!';
         console.log('Texte extrait :', res.text);
         console.log('Texte json :', res.spring_response);
-        // Submit application with offerForUpload.id
+        // Fetch the test after CV upload
+        this.loadTest();
         setTimeout(() => {
           this.successMessage = null;
-          this.currentView = 'offers';
-          this.offerForUpload = null; // Reset after submission
+          this.currentView = 'test'; // Switch to test view
+          this.offerForUpload = null;
         }, 2000);
       },
       error: (err) => {
@@ -253,22 +263,44 @@ export class CandidateDashboardComponent implements OnInit {
     });
   }
 
-  // Submit Application
-  private submitApplication(offerId: number, cvData: { text: string; spring_response: string }): void {
-    const candidateId = this.authRedirectService.getUserInfo()?.id;
-    if (!candidateId) {
-      this.error = 'User not authenticated.';
-      return;
+  // Test Management
+  loadTest(): void {
+    this.test = null;
+    this.answers = [];
+    this.loading = true;
+    this.dashboardService.getLatestTest().subscribe({
+      next: (response: { message: string; data: TestModel }) => {
+        this.test = response.data;
+        this.answers = new Array(this.test.questions.length).fill(null);
+        this.loading = false;
+        console.log('Test loaded:', this.test);
+      },
+      error: (err: any) => {
+        this.loading = false;
+        this.errorMessage = 'Failed to load test.';
+        setTimeout(() => (this.errorMessage = null), 3000);
+      }
+    });
+  }
+
+  isTestValid(): boolean {
+    return this.answers.every(answer => answer !== null);
+  }
+
+  submitTest(): void {
+    if (this.isTestValid()) {
+      console.log('Test submitted with answers:', this.answers);
+      this.successMessage = 'Test submitted successfully!';
+      setTimeout(() => {
+        this.successMessage = null;
+        this.currentView = 'offers';
+        this.test = null;
+        this.answers = [];
+      }, 2000);
+    } else {
+      this.errorMessage = 'Please answer all questions.';
+      setTimeout(() => (this.errorMessage = null), 3000);
     }
-
-    const applicationData = {
-      offerId: Number(offerId),
-      candidateId,
-      cvText: cvData.text,
-      cvJson: cvData.spring_response
-    };
-
-
   }
 
   // Pagination Management
@@ -295,4 +327,27 @@ export class CandidateDashboardComponent implements OnInit {
     this.selectedPartTimeJob = null;
     this.selectedInternshipOffer = null;
   }
+  filterOffers(): void {
+    const query = this.searchQuery.toLowerCase().trim();
+
+    if (query === '') {
+      this.updateDisplayedOffers();
+      return;
+    }
+
+    const filtered = this.offers.filter(offer =>
+      offer.field?.toLowerCase().includes(query) ||
+      offer.country?.toLowerCase().includes(query) ||
+      offer.city?.toLowerCase().includes(query) ||
+      offer.description?.toLowerCase().includes(query) ||
+      offer.offerType?.toLowerCase().includes(query)
+    );
+
+    this.totalPages = Math.ceil(filtered.length / this.offersPerPage);
+    const startIndex = (this.currentPage - 1) * this.offersPerPage;
+    const endIndex = startIndex + this.offersPerPage;
+    this.displayedOffers = filtered.slice(startIndex, endIndex);
+  }
+
+
 }

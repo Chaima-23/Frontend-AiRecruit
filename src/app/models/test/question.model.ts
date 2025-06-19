@@ -1,8 +1,11 @@
-import { DifficultyLevel } from './difficulty-level.enum';
+import { QuestionType } from './question-type.enum';
+import { TestModel } from './test.model';
 
 export interface QuestionModel {
   id: string;
-  difficultyLevel: DifficultyLevel;
-  field: string;
-
+  content: string;
+  type: QuestionType;
+  options: string[];
+  correctOptions: number[];
+  test?: TestModel;
 }

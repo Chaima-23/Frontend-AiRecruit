@@ -6,6 +6,7 @@
       <li [class.active]="currentView === 'profile'" (click)="setView('profile')"><i class="bi bi-person"></i> Profile</li>
       <li [class.active]="currentView === 'offers'" (click)="setView('offers')"><i class="bi bi-list"></i> Offers</li>
       <li [class.active]="currentView === 'my-applications'" (click)="setView('my-applications')"><i class="bi bi-file-earmark-text"></i> My Applications</li>
+      <li [class.active]="currentView === 'test'" (click)="setView('test')"><i class="bi bi-file-check"></i> Test</li>
     </ul>
     <div class="nav-logout" (click)="logout()">
       <i class="bi bi-box-arrow-right"></i> Log Out
@@ -157,8 +158,20 @@
     <!-- Offers View -->
     <div *ngIf="currentView === 'offers'" class="offers-view">
       <div class="settings-form-card">
-        <div class="settings-header">
+        <div class="offers-header">
           <h1>Latest Offers Listing</h1>
+          <div class="search-container">
+            <input
+              type="text"
+              placeholder="Search..."
+              [(ngModel)]="searchQuery"
+              (input)="filterOffers()"
+              class="search-input"
+            />
+            <button class="search-button" (click)="filterOffers()">
+              <i class="bi bi-search"></i>
+            </button>
+          </div>
         </div>
         <div class="offers-container">
           <div class="offer-card" *ngFor="let offer of displayedOffers">
@@ -327,5 +340,51 @@
         </div>
       </div>
     </div>
+    <!-- Test View -->
+    <div *ngIf="currentView === 'test'" class="test-view">
+      <div class="settings-form-card">
+        <div class="settings-header">
+          <h1>{{ test?.title || 'Technical Test' }}</h1>
+        </div>
+        <div class="test-container" *ngIf="test; else loadingTest">
+          <div class="question-card" *ngFor="let question of test.questions; let i = index">
+            <h3>Question {{ i + 1 }}: {{ question.content }}</h3>
+            <div class="options-container">
+              <ng-container *ngIf="question.type === 'RADIO'">
+                <div *ngFor="let option of question.options; let j = index" class="option">
+                  <input
+                    type="radio"
+                    [name]="'question-' + i"
+                    [value]="j"
+                    [(ngModel)]="answers[i]"
+                    [id]="'q' + i + 'o' + j"
+                  />
+                  <label [for]="'q' + i + 'o' + j">{{ option }}</label>
+                </div>
+              </ng-container>
+              <ng-container *ngIf="question.type === 'SELECT'">
+                <select [(ngModel)]="answers[i]">
+                  <option value="" disabled selected>Select an option</option>
+                  <option *ngFor="let option of question.options; let j = index" [value]="j">
+                    {{ option }}
+                  </option>
+                </select>
+              </ng-container>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="submit-btn" (click)="submitTest()" [disabled]="!isTestValid()">
+              Submit Test
+            </button>
+          </div>
+        </div>
+        <ng-template #loadingTest>
+          <div class="loading">Loading test...</div>
+        </ng-template>
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
+      </div>
+    </div>
+
   </div>
 </div>

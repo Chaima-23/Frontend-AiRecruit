@@ -1,21 +1,25 @@
-// candidate-dashboard.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { OfferModel } from '../../models/offers/offer.model';
-import { JobOfferModel } from '../../models/offers/job-offer.model';
-import { FullTimeJobModel } from '../../models/offers/full-time-job.model';
-import { InternshipOfferModel } from '../../models/offers/internship-offer.model';
-import { PartTimeJobModel } from '../../models/offers/part-time-job.model';
+import { TestModel } from '../../models/test/test.model';
+
 
 @Injectable({
   providedIn: 'root'
 })
 export class CandidateDashboardService {
   private apiUrl = 'http://localhost:8081/dashboard/candidate/offers';
-  private flaskApiUrl = 'http://localhost:5000/extract-text';
+  private ollamaApiUrl = 'http://localhost:8081/api/ollama';
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    ) {}
+
+
+
+
 
   getAllOffers(): Observable<{ message: string; data: OfferModel[] }> {
     console.log('Attempting to fetch all offers from backend...');
@@ -38,7 +42,17 @@ export class CandidateDashboardService {
       })
     );
   }
-}
 
-// Import these operators if not already imported
-import { tap, catchError } from 'rxjs/operators';
+  getLatestTest(): Observable<{ message: string; data: TestModel }> {
+    console.log('Attempting to fetch latest test...');
+    return this.http.get<{ message: string; data: TestModel }>(`${this.ollamaApiUrl}/latest-test`).pipe(
+      tap(response => console.log('Latest test fetched successfully:', response.data)),
+      catchError(error => {
+        console.error('Error fetching l atest test:', error);
+        throw error;
+      })
+    );
+  }
+
+
+}

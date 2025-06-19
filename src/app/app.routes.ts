@@ -17,7 +17,6 @@ import {ContactUsComponent} from './components/contact-us/contact-us.component';
 import {ForgotPasswordComponent} from './components/auth/forgot-password/forgot-password.component';
 import {UnauthorizedComponent} from './errors/unauthorized.component';
 import {canActivateAuthRole} from './core/guards/auth-role.guard';
-import {UploadCvComponent} from './components/Cv/upload-cv.component';
 
 
 
@@ -76,8 +75,6 @@ export const routes: Routes = [
   { path: 'evaluation/result/:id', component: ResultViewComponent },
   { path: 'evaluation/test/:id', component: TestAttemptComponent },
 
-  //cv
-  {path: 'importCV', component: UploadCvComponent},
 
   // Route non trouvée
   { path: '**', redirectTo: '', pathMatch: 'full' }

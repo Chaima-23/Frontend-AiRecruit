@@ -26,4 +26,7 @@ export class NavbarComponent {
   redirectToAbout() {
     this.router.navigate(['/about']);
   }
+  redirectToOffers() {
+    this.router.navigate(['/offers']);
+  }
 }
