@@ -791,6 +791,7 @@ form {
   color: #333;
 }
 
+
 .table .btn {
   padding: 6px 12px;
   border-radius: 5px;
@@ -1200,21 +1201,64 @@ form {
   justify-content: flex-end;
   padding-top: 20px;
   border-top: 1px solid #ddd;
+  text-align: center;
 }
 
 .apply-btn {
   padding: 8px 16px;
-  background-color: #014D88;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin: 0 10px;
 }
 
-.apply-btn:hover {
-  background-color: #00a5c4;
+.accept-btn {
+  background-color: #096a09;
+  padding: 10px 30px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 10px;
+  font-size: 16px;
 }
 
+.accept-btn:hover {
+  background-color: #22780f;
+}
+
+.reject-btn {
+  background-color: #b82010;
+  padding: 10px 30px;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin: 0 10px;
+}
+
+.reject-btn:hover {
+  background-color: #db1702;
+}
+
+.success-message, .error-message {
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+}
+
+.success-message {
+  background-color: #dff0d8;
+  color: #3c763d;
+}
+
+.error-message {
+  background-color: #f2dede;
+  color: #a94442;
+}
 .candidates-list::-webkit-scrollbar {
   width: 8px;
 }

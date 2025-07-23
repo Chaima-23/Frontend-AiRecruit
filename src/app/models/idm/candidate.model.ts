@@ -11,5 +11,5 @@ export interface CandidateModel extends UserModel {
   softSkills: string;
   technicalSkills: string;
   specialization: string;
-
+  score: string;
 }

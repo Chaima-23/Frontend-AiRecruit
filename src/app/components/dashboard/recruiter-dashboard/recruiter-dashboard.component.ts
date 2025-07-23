@@ -53,9 +53,9 @@ export class RecruiterDashboardComponent implements AfterViewInit {
   };
 
   topScorers = [
-    { name: 'Jane Cooper', title: 'Cloud Engineer', percentage: '99.99%', rank: '1st', date: '2025-05-01' },
-    { name: 'Eleanor Pena', title: 'Cybersecurity Specialist', percentage: '99.76%', rank: '2nd', date: '2025-05-01' },
-    { name: 'Devon Lane', title: 'Web Developer', percentage: '99.50%', rank: '3rd', date: '2025-05-01' }
+    { name: 'Chahd Maaloul', title: 'IT Support Intern', percentage: '90%', rank: '1st', date: '2025-06-20' },
+    { name: 'Youssef Zidi', title: 'Cybersecurity Specialist', percentage: '85%', rank: '2nd', date: '2025-05-30' },
+    { name: 'Salma Koubaa', title: 'Web Developer', percentage: '70%', rank: '3rd', date: '2025-06-17' }
   ];
 
   originalTopScorers = [...this.topScorers];
@@ -467,94 +467,113 @@ export class RecruiterDashboardComponent implements AfterViewInit {
     }
   }
 
-  applications: any[] = [];
+// Static data for applications
+  applicationCounts: { [key: string]: number } = {
+    app1: 5,
+    app2: 3,
+    app3: 8,
+    app4: 1
+  };
+  applications: any[] = [
+    {
+      id: 'app1',
+      firstName: 'Mariem',
+      description: 'Software Engineer',
+      yearsOfExperience: 5,
+      diploma: 'Master in Computer Science',
+      date: new Date('2025-06-20'),
+      isFavorite: false,
+      candidate: {
+        id: 'cand1',
+        firstName: 'Mariem',
+        lastName: 'Jelassi',
+        email: 'Mariem@example.com',
+        phone: "+216-50-678-321",
+        country: 'USA',
+        city: 'New York',
+        address: '123 Main St',
+        dateOfBirth: new Date('1995-05-15'),
+        specialization: 'Software Development',
+        technicalSkills: ['Java', 'Python', 'SQL'],
+        softSkills: ['Communication', 'Teamwork'],
+        score: '85%' // Added score
+      },
+      offer: { id: 'offer1', description: 'Software Engineer Position' }
+
+    },
+    {
+      id: 'app2',
+      firstName: 'Chaima',
+      description: 'Data Analyst',
+      yearsOfExperience: 3,
+      diploma: 'Bachelor in Statistics',
+      date: new Date('2025-06-15'),
+      isFavorite: false,
+      candidate: {
+        id: 'cand2',
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'chaima.zidi@example.com',
+        phone: '+216-93-124-968',
+        country: 'Canada',
+        city: 'Toronto',
+        address: '456 Oak Ave',
+        dateOfBirth: new Date('1998-08-20'),
+        specialization: 'Data Analysis',
+        technicalSkills: ['Excel', 'R', 'Tableau'],
+        softSkills: ['Problem Solving', 'Attention to Detail'],
+        score: '90%' // Added score
+      },
+      offer: { id: 'offer2', description: 'Data Analyst Role' }
+    },
+    {
+      id: 'app1',
+      firstName: 'Chahd',
+      description: 'IT Support Intern',
+      yearsOfExperience: 1,
+      diploma: 'Bachelor in Computer Science',
+      date: new Date('2025-06-20'),
+      isFavorite: false,
+      candidate: {
+        id: 'cand1',
+        firstName: 'Chahd',
+        lastName: 'Maaloul',
+        email: 'chahd.maaloul23@gmail.com',
+        phone: '54126038',
+        country: 'Tunisia',
+        city: 'Sfax',
+        address: 'Gremda km4',
+        dateOfBirth: new Date('2003-04-20'),
+        specialization: 'Big Data',
+        technicalSkills: ['Data flow', 'cloud functions'],
+        softSkills: ['Communication'],
+        score: '90%'
+      },
+      offer: { id: 'offer1', description: 'IT Support Intern' }
+    }
+
+  ];
   favoriteCandidates: any[] = [];
   selectedProfile: CandidateModel | null = null;
   selectedApplicationOffer: OfferModel | null = null;
 
-  ngOnInit(): void {
-    console.log('Component initialized, loading applications and favorites...');
-    this.loadApplications();
-    this.loadFavoriteApplications();
-  }
-
-  loadApplications(offerId?: string): void {
-    console.log('Attempting to load applications from backend for offer ID:', offerId);
-    this.recruiterDashboardService.getApplications(offerId).subscribe({
-      next: (response) => {
-        console.log('Applications loaded successfully:', response.data);
-        this.applications = response.data.map((app: any) => ({
-          ...app,
-          appliedDate: app.date ? new Date(app.date) : new Date(),
-          isFavorite: false
-        }));
-      },
-      error: (error) => {
-        console.error('Error loading applications from backend:', error);
-      }
-    });
-  }
-
-  loadFavoriteApplications(): void {
-    console.log('Attempting to load favorite applications from backend...');
-    this.recruiterDashboardService.getFavoriteApplications().subscribe({
-      next: (response) => {
-        console.log('Favorite applications loaded successfully:', response.data);
-        const favoriteApps: ApplicationRequest[] = response.data;
-        this.favoriteCandidates = favoriteApps.map((app: ApplicationRequest) => ({
-          firstName: app.candidate.firstName,
-          yearsOfExperience: app.candidate.yearsOfExperience,
-          description: app.offer.description,
-          diploma: app.candidate.diploma,
-          date: app.date ? new Date(app.date) : new Date(),
-          isFavorite: true,
-          id: app.id,
-          offer: app.offer
-        }));
-        console.log('favoriteCandidates after mapping:', this.favoriteCandidates); // Ajout du log
-        this.applications.forEach(app => {
-          app.isFavorite = favoriteApps.some((fav: ApplicationRequest) => fav.id === app.id);
-        });
-      },
-      error: (error) => {
-        console.error('Error loading favorite applications from backend:', error);
-      }
-    });
-  }
   viewApplications(offer: any): void {
     console.log('Viewing applications for offer ID:', offer.id);
     this.selectedApplicationOffer = offer;
     this.currentView = 'applications';
-    this.loadApplications(offer.id);
   }
 
   toggleFavorite(application: any): void {
     console.log('Toggling favorite status for application ID:', application.id);
-    const isFavorite = !application.isFavorite;
-    if (isFavorite) {
-      this.recruiterDashboardService.addApplicationToFavorites(application.id).subscribe({
-        next: () => {
-          console.log('Application added to favorites successfully, ID:', application.id);
-          application.isFavorite = true;
-          if (!this.favoriteCandidates.some(fc => fc.id === application.id)) {
-            this.favoriteCandidates.push({ ...application, isFavorite: true });
-          }
-        },
-        error: (error) => {
-          console.error('Error adding application to favorites, ID:', application.id, error);
-        }
-      });
+    application.isFavorite = !application.isFavorite;
+    if (application.isFavorite) {
+      console.log('Application added to favorites successfully, ID:', application.id);
+      if (!this.favoriteCandidates.some(fc => fc.id === application.id)) {
+        this.favoriteCandidates.push({ ...application, isFavorite: true });
+      }
     } else {
-      this.recruiterDashboardService.removeApplicationFromFavorites(application.id).subscribe({
-        next: () => {
-          console.log('Application removed from favorites successfully, ID:', application.id);
-          application.isFavorite = false;
-          this.favoriteCandidates = this.favoriteCandidates.filter(fc => fc.id !== application.id);
-        },
-        error: (error) => {
-          console.error('Error removing application from favorites, ID:', application.id, error);
-        }
-      });
+      console.log('Application removed from favorites successfully, ID:', application.id);
+      this.favoriteCandidates = this.favoriteCandidates.filter(fc => fc.id !== application.id);
     }
   }
 
@@ -564,35 +583,39 @@ export class RecruiterDashboardComponent implements AfterViewInit {
 
   viewProfile(application: any): void {
     console.log('Viewing profile for candidate ID:', application.candidate.id);
-    this.recruiterDashboardService.getCandidateDetails(application.candidate.id).subscribe({
-      next: (response) => {
-        console.log('Candidate details loaded successfully:', response.data);
-        this.selectedProfile = {
-          ...application.candidate,
-          ...response.data,
-          dateOfBirth: response.data.dateOfBirth ? new Date(response.data.dateOfBirth) : null,
-          diploma: response.data.diploma,
-          yearsOfExperience: response.data.yearsOfExperience,
-          phoneNumber: response.data.phoneNumber,
-          technicalSkills: response.data.technicalSkills ,
-          softSkills: response.data.softSkills
-        };
-        // Set the selectedApplicationOffer to include the offer title
-        this.selectedApplicationOffer = application.offer || { description: 'Unknown Offer' };
-      },
-      error: (error) => {
-        console.error('Error loading candidate details for ID:', application.candidate.id, error);
-      }
-    });
+    this.selectedProfile = { ...application.candidate };
+    this.selectedApplicationOffer = application.offer || { description: 'Unknown Offer' };
   }
 
   closeProfileModal() {
     this.selectedProfile = null;
   }
 
+  acceptApplication() {
+    console.log('Application accepted for candidate:', this.selectedProfile?.firstName);
+    this.showSuccessMessage = true;
+    this.showErrorMessage = false;
+    setTimeout(() => {
+      this.showSuccessMessage = false;
+      this.selectedProfile = null;
+    }, 2000); // Hide message after 2 seconds
+  }
+
+  rejectApplication() {
+    console.log('Application rejected for candidate:', this.selectedProfile?.firstName);
+    this.showErrorMessage = true;
+    this.showSuccessMessage = false;
+    setTimeout(() => {
+      this.showErrorMessage = false;
+      this.selectedProfile = null;
+    }, 2000); // Hide message after 2 seconds
+  }
+
+  showSuccessMessage: boolean = false;
+  showErrorMessage: boolean = false;
+
   backToListOffers(): void {
     console.log('Returning to list of offers...');
-    this.applications = [];
     this.currentView = 'offers';
     this.offersTab = 'my-offers';
   }

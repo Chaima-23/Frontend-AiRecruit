@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, AfterViewInit, ElementRef, ViewChild,ChangeDetectorRef } from '@angular/core';
 import { Chart, registerables } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
@@ -25,11 +25,11 @@ import { JobOfferModel } from '../../../models/offers/job-offer.model';
 export class AdminDashboardComponent implements AfterViewInit {
   // Job Listings
   jobs = [
-    { title: 'UI/UX Designer', type: 'Job', applications: 125, status: 'Active', statusClass: 'active' },
-    { title: 'Full Stack Dev', type: 'Remote', applications: 100, status: 'Expired', statusClass: 'expired' },
-    { title: 'DevOps', type: 'Internship', applications: 5, status: 'Active', statusClass: 'active' },
-    { title: 'Android Dev', type: 'Job', applications: 45, status: 'Active', statusClass: 'active' },
-    { title: 'iOS Developer', type: 'Internship', applications: 36, status: 'Expired', statusClass: 'expired' }
+    { title: 'IT Support Intern', type: 'Full-time', applications: 3, status: 'Active', statusClass: 'active' },
+    { title: 'Full Stack Dev', type: 'Internship', applications: 0, status: 'Expired', statusClass: 'expired' },
+    { title: 'DevOps', type: 'Internship', applications: 0, status: 'Active', statusClass: 'active' },
+    { title: 'Android Dev', type: 'Full-time', applications: 3, status: 'Active', statusClass: 'active' },
+    { title: 'iOS Developer', type: 'Part-time', applications: 0, status: 'Expired', statusClass: 'expired' }
   ];
 
   // Component Properties
@@ -65,7 +65,8 @@ export class AdminDashboardComponent implements AfterViewInit {
     private fb: FormBuilder,
     private router: Router,
     private adminDashboardService: AdminDashboardService,
-    private authRedirectService: AuthRedirectService
+    private authRedirectService: AuthRedirectService,
+    private cdRef: ChangeDetectorRef
   ) {
     Chart.register(...registerables);
     const userInfo = this.authRedirectService.getUserInfo();
@@ -126,7 +127,7 @@ export class AdminDashboardComponent implements AfterViewInit {
         this.stats = [
           { title: 'Job Posts', value: data.totalJobOffers || 0 },
           { title: 'Internship Posts', value: data.totalInternshipOffers || 0 },
-          { title: 'Total Applications', value: data.totalApplications || 0 },
+          { title: 'Total Applications', value: data.totalApplications || 6 },
           { title: 'Total Candidates', value: data.totalCandidates || 0 },
           { title: 'Total Recruiters', value: data.totalRecruiters || 0 }
         ];
@@ -457,5 +458,22 @@ export class AdminDashboardComponent implements AfterViewInit {
         }
       });
     }
+  }
+
+    //filtrage
+    selectedType: string = '';
+
+  filterOffers(): (OfferModel | JobOfferModel | FullTimeJobModel | PartTimeJobModel | InternshipOfferModel)[] {
+    if (!this.selectedType) {
+      return this.Offers;
+    }
+    return this.Offers.filter(offer => offer.offerType === this.selectedType);
+  }
+
+  onFilterChange(event: Event): void {
+    const selectElement = event.target as HTMLSelectElement;
+    this.selectedType = selectElement.value;
+    // Force change detection to re-render the template
+    this.cdRef?.detectChanges();
   }
 }

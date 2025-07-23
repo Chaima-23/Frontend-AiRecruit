@@ -184,7 +184,7 @@
             <div class="offer-tools">Tools: {{ offer.tools }}</div>
             <div class="offer-details">
               <span class="offer-type">{{ offer.offerType }}</span>
-              <span class="offer-salary">{{ offer.salary }} DT</span>
+              <span class="offer-salary">{{ offer.salary }}$</span>
             </div>
             <button class="apply-btn" (click)="setViewUploadCv(offer)">APPLY NOW</button>
           </div>
@@ -287,18 +287,30 @@
         </div>
       </div>
     </div>
-    <!-- My Applications View -->
+    <!--My applications-->
     <div *ngIf="currentView === 'my-applications'" class="my-applications-view">
       <div class="settings-form-card">
         <div class="settings-header">
           <h1>My Applications</h1>
         </div>
         <div class="applications-list">
-          <div *ngIf="myApplications.length === 0" class="no-applications">
-            You have not applied to any offers yet.
-          </div>
-          <div *ngFor="let application of myApplications" class="application-item">
-            {{ application.title }}
+          <div class="table">
+            <table>
+              <thead>
+              <tr>
+                <th>Title</th>
+                <th>Type</th>
+                <th>Score</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr *ngFor="let app of myApplicationsTableData">
+                <td>{{ app.title }}</td>
+                <td>{{ app.type }}</td>
+                <td><strong>{{ app.score }}</strong></td>
+              </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -343,37 +355,39 @@
     <!-- Test View -->
     <div *ngIf="currentView === 'test'" class="test-view">
       <div class="settings-form-card">
+        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
         <div class="settings-header">
           <h1>{{ test?.title || 'Technical Test' }}</h1>
         </div>
-        <div class="test-container" *ngIf="test; else loadingTest">
-          <div class="question-card" *ngFor="let question of test.questions; let i = index">
-            <h3>Question {{ i + 1 }}: {{ question.content }}</h3>
+        <div class="test-container" *ngIf="test && currentQuestionIndex < test.questions.length; else loadingTest">
+          <div class="question-card">
+            <h3>Question {{ currentQuestionIndex + 1 }}: {{ test.questions[currentQuestionIndex].content }}</h3>
             <div class="options-container">
-              <ng-container *ngIf="question.type === 'RADIO'">
-                <div *ngFor="let option of question.options; let j = index" class="option">
-                  <input
-                    type="radio"
-                    [name]="'question-' + i"
-                    [value]="j"
-                    [(ngModel)]="answers[i]"
-                    [id]="'q' + i + 'o' + j"
-                  />
-                  <label [for]="'q' + i + 'o' + j">{{ option }}</label>
-                </div>
-              </ng-container>
-              <ng-container *ngIf="question.type === 'SELECT'">
-                <select [(ngModel)]="answers[i]">
-                  <option value="" disabled selected>Select an option</option>
-                  <option *ngFor="let option of question.options; let j = index" [value]="j">
-                    {{ option }}
-                  </option>
-                </select>
-              </ng-container>
+              <div *ngFor="let option of test.questions[currentQuestionIndex].options; let j = index" class="option">
+                <input
+                  type="checkbox"
+                  [name]="'question-' + currentQuestionIndex"
+                  [value]="j"
+                  [id]="'q' + currentQuestionIndex + 'o' + j"
+                  (change)="onAnswerChange($event, j)"
+                  class="custom-checkbox"
+                  [checked]="isOptionSelected(currentQuestionIndex, j)"
+                />
+                <label [for]="'q' + currentQuestionIndex + 'o' + j">{{ option }}</label>
+              </div>
             </div>
           </div>
           <div class="form-actions">
-            <button class="submit-btn" (click)="submitTest()" [disabled]="!isTestValid()">
+            <button class="nav-btn" *ngIf="currentQuestionIndex > 0" (click)="previousQuestion()">
+              <i class="bi bi-caret-left-square-fill"></i>
+              <span>Previous Question</span>
+            </button>
+            <button class="nav-btn" *ngIf="currentQuestionIndex < test.questions.length - 1" (click)="nextQuestion()">
+              <span>Next Question</span>
+              <i class="bi bi-caret-right-square-fill"></i>
+            </button>
+            <button class="submit-btn" *ngIf="currentQuestionIndex === test.questions.length - 1" (click)="submitTest()" [disabled]="!isTestValid()">
               Submit Test
             </button>
           </div>
@@ -381,10 +395,7 @@
         <ng-template #loadingTest>
           <div class="loading">Loading test...</div>
         </ng-template>
-        <div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
-        <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
       </div>
     </div>
-
-  </div>
+</div>
 </div>

@@ -15,9 +15,12 @@
   <h2 class="offers-title">Latest Offers Listing</h2>
 
   <div class="carousel-controls">
-    <button (click)="prevPage()" class="arrow-btn">
+    <!-- Flèche gauche (désactivée si on est à la première page) -->
+    <button (click)="prevPage()" [disabled]="currentPage === 0" class="arrow-btn">
       <i class="bi bi-arrow-left-circle-fill"></i>
     </button>
+
+    <!-- Conteneur des offres affichées -->
     <div class="offers-container">
       <div *ngFor="let offer of pagedOffers" class="offer-card">
         <div class="offer-header">
@@ -28,25 +31,29 @@
           <button (click)="goToDetails()" class="details-link">Details</button>
         </div>
         <p class="description">{{ offer.description }}</p>
-        <div class="duties">{{ offer.dutiesAndResponsibilities}}</div>
+        <div class="duties">{{ offer.dutiesAndResponsibilities }}</div>
         <div class="tools">
           <strong>Tools:</strong> {{ offer.tools.split(',').join(', ') }}
         </div>
         <div class="offer-footer">
           <span class="type">{{ offer.offerType }}</span>
-          <span class="salary">{{ offer.salary }} DT</span>
+          <span class="salary">{{ offer.salary }} $</span>
           <button (click)="applyForOffer()" class="apply-btn">APPLY NOW</button>
         </div>
       </div>
     </div>
-    <button (click)="nextPage()" class="arrow-btn">
+
+    <!-- Flèche droite (désactivée si on est à la dernière page) -->
+    <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1" class="arrow-btn">
       <i class="bi bi-arrow-right-circle-fill"></i>
     </button>
   </div>
+
+  <!-- Section corporate + footer -->
   <div class="host">
     <app-corporate-section></app-corporate-section>
-
     <app-footer></app-footer>
   </div>
-
 </div>
+
+

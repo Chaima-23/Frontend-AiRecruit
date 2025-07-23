@@ -36,7 +36,7 @@
             <div class="stat-content">
               <div class="stat-left">
                 <h3>Candidates</h3>
-                <div class="stat-number">12</div>
+                <div class="stat-number">9</div>
                 <div class="legend">
                   <span class="legend-item female">Females</span>
                   <span class="legend-item male">Males</span>
@@ -51,7 +51,7 @@
             <div class="stat-content">
               <div class="stat-left">
                 <h3>Accepted</h3>
-                <div class="stat-number">4</div>
+                <div class="stat-number">3</div>
               </div>
               <div class="stat-right">
                 <i class="bi bi-check-circle"></i>
@@ -62,7 +62,7 @@
             <div class="stat-content">
               <div class="stat-left">
                 <h3>Refused</h3>
-                <div class="stat-number">6</div>
+                <div class="stat-number">3</div>
               </div>
               <div class="stat-right">
                 <i class="bi bi-x-circle"></i>
@@ -73,7 +73,7 @@
             <div class="stat-content">
               <div class="stat-left">
                 <h3>Total Applications</h3>
-                <div class="stat-number">10</div>
+                <div class="stat-number">5</div>
               </div>
               <div class="stat-right">
                 <i class="bi bi-file-earmark-text"></i>
@@ -284,7 +284,6 @@
             <thead>
             <tr>
               <th>My Offers</th>
-              <th>Application</th>
               <th>Type</th>
               <th>Status</th>
               <th>Actions</th>
@@ -293,7 +292,6 @@
             <tbody>
             <tr *ngFor="let offer of offers">
               <td class="custom-cell">{{ offer.description }}</td>
-              <td class="custom-cell">{{ offer.applications }}</td>
               <td class="custom-cell">{{ offer.offerType | titlecase }}</td>
               <td [ngClass]="{
   'status': true,
@@ -400,9 +398,6 @@
               <strong>Email:</strong> <span>{{ selectedProfile.email }}</span>
             </div>
             <div class="detail-item">
-              <strong>Phone:</strong> <span>{{ selectedProfile.phoneNumber }}</span>
-            </div>
-            <div class="detail-item">
               <strong>Date of Birth:</strong> <span>{{ selectedProfile.dateOfBirth | date:'MMM d, yyyy' }}</span>
             </div>
             <div class="detail-item">
@@ -415,13 +410,7 @@
               <strong>Address:</strong> <span>{{ selectedProfile.address }}</span>
             </div>
             <div class="detail-item">
-              <strong>Diploma:</strong> <span>{{ selectedProfile.diploma }}</span>
-            </div>
-            <div class="detail-item">
               <strong>Specialization:</strong> <span>{{ selectedProfile.specialization }}</span>
-            </div>
-            <div class="detail-item">
-              <strong>Years of Experience:</strong> <span>{{ selectedProfile.yearsOfExperience }}</span>
             </div>
             <div class="detail-item">
               <strong>Technical Skills:</strong> <span>{{ selectedProfile.technicalSkills }}</span>
@@ -432,10 +421,16 @@
             <div class="detail-item">
               <strong>Applied for Offer:</strong> <span>{{ selectedApplicationOffer?.description }}</span>
             </div>
+            <div class="detail-item">
+              <strong>Score:</strong> <span>{{ selectedProfile.score }}</span>
+            </div>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="apply-btn" (click)="closeProfileModal()">Close</button>
+        <div class="modal-footer" style="text-align: center;">
+          <div *ngIf="showSuccessMessage" class="success-message">Application accepted for {{ selectedProfile?.firstName }}</div>
+          <div *ngIf="showErrorMessage" class="error-message">Application rejected for {{ selectedProfile?.firstName }}</div>
+          <button class="apply-btn accept-btn" (click)="acceptApplication()">Accept</button>
+          <button class="apply-btn reject-btn" (click)="rejectApplication()">Reject</button>
         </div>
       </div>
     </div>

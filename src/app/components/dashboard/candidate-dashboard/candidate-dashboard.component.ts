@@ -10,6 +10,7 @@ import { FullTimeJobModel } from '../../../models/offers/full-time-job.model';
 import { InternshipOfferModel } from '../../../models/offers/internship-offer.model';
 import { PartTimeJobModel } from '../../../models/offers/part-time-job.model';
 import { TestModel} from '../../../models/test/test.model';
+import {QuestionType} from '../../../models/test/question-type.enum';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -27,8 +28,7 @@ export class CandidateDashboardComponent implements OnInit {
   errorMessage: string | null = null;
   isOtherCountry: boolean = false;
   searchQuery: string = '';
-
-
+  currentQuestionIndex: number = 0;
 
   // Form Groups
   personalForm: FormGroup;
@@ -51,7 +51,7 @@ export class CandidateDashboardComponent implements OnInit {
 
   // Test Data
   test: TestModel | null = null;
-  answers: (number | null)[] = []; // Store selected option indices
+  answers: (number | number[] | null)[] = []; // Adjusted to handle both single and multiple selections
 
   // Pagination
   currentPage: number = 1;
@@ -248,11 +248,10 @@ export class CandidateDashboardComponent implements OnInit {
         this.successMessage = 'CV uploaded successfully!';
         console.log('Texte extrait :', res.text);
         console.log('Texte json :', res.spring_response);
-        // Fetch the test after CV upload
         this.loadTest();
         setTimeout(() => {
           this.successMessage = null;
-          this.currentView = 'test'; // Switch to test view
+          this.currentView = 'test';
           this.offerForUpload = null;
         }, 2000);
       },
@@ -263,15 +262,16 @@ export class CandidateDashboardComponent implements OnInit {
     });
   }
 
-  // Test Management
+// Test Management
   loadTest(): void {
     this.test = null;
     this.answers = [];
+    this.currentQuestionIndex = 0;
     this.loading = true;
     this.dashboardService.getLatestTest().subscribe({
       next: (response: { message: string; data: TestModel }) => {
         this.test = response.data;
-        this.answers = new Array(this.test.questions.length).fill(null);
+        this.answers = new Array(this.test.questions.length).fill(null).map(() => []);
         this.loading = false;
         console.log('Test loaded:', this.test);
       },
@@ -283,8 +283,45 @@ export class CandidateDashboardComponent implements OnInit {
     });
   }
 
+  nextQuestion(): void {
+    if (this.currentQuestionIndex < (this.test?.questions.length || 0) - 1) {
+      this.currentQuestionIndex++;
+    }
+  }
+
+  previousQuestion(): void {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--;
+    }
+  }
+
+  onAnswerChange(event: Event, optionIndex: number): void {
+    const input = event.target as HTMLInputElement;
+    let currentAnswers = this.answers[this.currentQuestionIndex] as number[] | null;
+    if (!Array.isArray(currentAnswers)) {
+      currentAnswers = [];
+      this.answers[this.currentQuestionIndex] = currentAnswers;
+    }
+    if (input.checked) {
+      currentAnswers.push(optionIndex);
+    } else {
+      const index = currentAnswers.indexOf(optionIndex);
+      if (index !== -1) {
+        currentAnswers.splice(index, 1);
+      }
+      if (currentAnswers.length === 0) {
+        this.answers[this.currentQuestionIndex] = null;
+      }
+    }
+  }
+
+  isOptionSelected(questionIndex: number, optionIndex: number): boolean {
+    const answers = this.answers[questionIndex];
+    return Array.isArray(answers) && answers.includes(optionIndex);
+  }
+
   isTestValid(): boolean {
-    return this.answers.every(answer => answer !== null);
+    return this.answers.every(answer => answer !== null && (Array.isArray(answer) ? answer.length > 0 : true));
   }
 
   submitTest(): void {
@@ -296,13 +333,13 @@ export class CandidateDashboardComponent implements OnInit {
         this.currentView = 'offers';
         this.test = null;
         this.answers = [];
-      }, 2000);
+        this.currentQuestionIndex = 0;
+      }, 60000);
     } else {
       this.errorMessage = 'Please answer all questions.';
       setTimeout(() => (this.errorMessage = null), 3000);
     }
   }
-
   // Pagination Management
   calculatePagination(): void {
     this.totalPages = Math.ceil(this.offers.length / this.offersPerPage);
@@ -327,6 +364,7 @@ export class CandidateDashboardComponent implements OnInit {
     this.selectedPartTimeJob = null;
     this.selectedInternshipOffer = null;
   }
+
   filterOffers(): void {
     const query = this.searchQuery.toLowerCase().trim();
 
@@ -349,5 +387,12 @@ export class CandidateDashboardComponent implements OnInit {
     this.displayedOffers = filtered.slice(startIndex, endIndex);
   }
 
+  // Static table data
+  myApplicationsTableData: { title: string, type: string, score: string }[] = [
+    { title: 'Software Engineer', type: 'full-time', score: '85%' },
+    { title: 'Marketing Intern', type: 'internship', score: '72%' },
+    { title: 'Designer', type: 'part-time', score: '90%' },
+    { title: 'IT Support Intern', type: 'Internship', score: '90%' }
+  ];
 
 }

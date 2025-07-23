@@ -24,6 +24,8 @@ export class OffersListComponent implements OnInit {
   pagedOffers: OfferModel[] = [];
   currentPage = 0;
   itemsPerPage = 6;
+  totalPages = 0;
+
 
   constructor(private offerService: OffersPublicListService, private router: Router) {}
 
@@ -34,14 +36,16 @@ export class OffersListComponent implements OnInit {
     });
   }
 
+
   updatePagedOffers(): void {
+    this.totalPages = Math.ceil(this.offers.length / this.itemsPerPage);
     const start = this.currentPage * this.itemsPerPage;
     const end = start + this.itemsPerPage;
     this.pagedOffers = this.offers.slice(start, end);
   }
 
   nextPage(): void {
-    if ((this.currentPage + 1) * this.itemsPerPage < this.offers.length) {
+    if (this.currentPage < this.totalPages - 1) {
       this.currentPage++;
       this.updatePagedOffers();
     }

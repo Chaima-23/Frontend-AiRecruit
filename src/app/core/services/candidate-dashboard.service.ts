@@ -13,6 +13,7 @@ export class CandidateDashboardService {
   private apiUrl = 'http://localhost:8081/dashboard/candidate/offers';
   private ollamaApiUrl = 'http://localhost:8081/api/ollama';
 
+
   constructor(
     private http: HttpClient,
     ) {}
