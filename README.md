@@ -1,3 +1,32 @@
+🧠 AIRecruit – Frontend de la plateforme d’évaluation des candidatures
+Ce dépôt contient le frontend de AIRecruit, une plateforme intelligente qui automatise l’évaluation des candidatures grâce à l’intelligence artificielle. Elle permet aux recruteurs de publier des offres, de présélectionner les candidats automatiquement et de générer des tests personnalisés en fonction des CV reçus.
+
+🌐 Technologies utilisées
+Framework : Angular 19
+
+Langage : TypeScript
+
+Style : HTML, CSS
+
+Authentification : Keycloak (OpenID Connect / OAuth2)
+
+Communication API : HTTP Client Angular (Token + Interceptor)
+
+🧠 Fonctionnalités principales
+🔐 Authentification sécurisée pour candidats, recruteurs et administrateurs
+
+📝 Inscription multi-rôle (formulaires dédiés pour recruteurs et candidats)
+
+📊 Tableaux de bord personnalisés par type d’utilisateur
+
+📂 Gestion des offres d’emploi (création, modification, suppression, consultation)
+
+🤖 Analyse automatique de CV via NLP et IA
+
+🧪 Génération intelligente de tests en fonction du profil candidat
+
+📈 Suivi des performances, résultats de tests et statistiques globales
+
 # PfeProject
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.1.8.
