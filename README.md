@@ -1,7 +1,7 @@
-🧠 AIRecruit – Frontend de la plateforme d’évaluation des candidatures
+# 🧠 AIRecruit – Frontend de la plateforme d’évaluation des candidatures
 Ce dépôt contient le frontend de AIRecruit, une plateforme intelligente qui automatise l’évaluation des candidatures grâce à l’intelligence artificielle. Elle permet aux recruteurs de publier des offres, de présélectionner les candidats automatiquement et de générer des tests personnalisés en fonction des CV reçus.
 
-🌐 Technologies utilisées
+# 🌐 Technologies utilisées
 Framework : Angular 19
 
 Langage : TypeScript
@@ -12,7 +12,7 @@ Authentification : Keycloak (OpenID Connect / OAuth2)
 
 Communication API : HTTP Client Angular (Token + Interceptor)
 
-🧠 Fonctionnalités principales
+# 🧠 Fonctionnalités principales
 🔐 Authentification sécurisée pour candidats, recruteurs et administrateurs
 
 📝 Inscription multi-rôle (formulaires dédiés pour recruteurs et candidats)
